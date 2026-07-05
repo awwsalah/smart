@@ -1,0 +1,95 @@
+{
+  "_note": "Seed data for first-run insertion into SQLite. Districts are real (well-sourced for Hargeisa; Burco/Berbera use local neighborhood 'xaafado' names). In Burco and Berbera formal street names are rare people navigate by landmark, so keep 'street' optional and rely on landmark_note. VERIFY names locally before your defense.",
+
+  "cities": [
+    { "id": 1, "name": "Hargeisa" },
+    { "id": 2, "name": "Burco" },
+    { "id": 3, "name": "Berbera" }
+  ],
+
+  "districts": [
+    { "id": 1,  "city_id": 1, "name": "26 June" },
+    { "id": 2,  "city_id": 1, "name": "31 May" },
+    { "id": 3,  "city_id": 1, "name": "Ahmed Dhagah" },
+    { "id": 4,  "city_id": 1, "name": "Ahmed Moallim Haruun" },
+    { "id": 5,  "city_id": 1, "name": "Gacan Libaax" },
+    { "id": 6,  "city_id": 1, "name": "Ibrahim Koodbuur" },
+    { "id": 7,  "city_id": 1, "name": "Mohamoud Haybe" },
+    { "id": 8,  "city_id": 1, "name": "Mohamed Moge" },
+
+    { "id": 9,  "city_id": 2, "name": "Koosaar" },
+    { "id": 10, "city_id": 2, "name": "Sacabka" },
+    { "id": 11, "city_id": 2, "name": "Hodan (Hodan Qaylo)" },
+    { "id": 12, "city_id": 2, "name": "Oktoobar (October)" },
+    { "id": 13, "city_id": 2, "name": "Afgooyi" },
+    { "id": 14, "city_id": 2, "name": "Qasabka" },
+    { "id": 15, "city_id": 2, "name": "Zeylada" },
+    { "id": 16, "city_id": 2, "name": "Kenya" },
+    { "id": 17, "city_id": 2, "name": "Germalka" },
+    { "id": 18, "city_id": 2, "name": "Abu Dhabi" },
+    { "id": 19, "city_id": 2, "name": "Titanic (Berbera Road)" },
+    { "id": 20, "city_id": 2, "name": "Tuurta" },
+
+    { "id": 21, "city_id": 3, "name": "Magaalada Dhexe (Central Berbera)" },
+    { "id": 22, "city_id": 3, "name": "Magaalada Hore (Old Town)" },
+    { "id": 23, "city_id": 3, "name": "Darole" },
+    { "id": 24, "city_id": 3, "name": "Sheikh Nuur" },
+    { "id": 25, "city_id": 3, "name": "Dekedda (Port Area)" },
+    { "id": 26, "city_id": 3, "name": "Xeebta (Beachfront)" }
+  ],
+
+  "streets": [
+    { "id": 1,  "district_id": 3, "name": "Jigjigayar" },
+    { "id": 2,  "district_id": 5, "name": "New Hargeisa (Hargeysa Cusub)" },
+    { "id": 3,  "district_id": 5, "name": "Daami" },
+    { "id": 4,  "district_id": 5, "name": "Sheikh Madar" },
+    { "id": 5,  "district_id": 7, "name": "Masalaha" },
+    { "id": 6,  "district_id": 4, "name": "Calamadaha" },
+    { "id": 7,  "district_id": 1, "name": "Iftin" },
+    { "id": 8,  "district_id": 6, "name": "Ganad" },
+    { "id": 9,  "district_id": 6, "name": "Guryo Samo" },
+
+    { "id": 10, "district_id": 9,  "name": "Main Road" },
+    { "id": 11, "district_id": 11, "name": "Suuqa Dhexe (Central Market)" },
+    { "id": 12, "district_id": 10, "name": "Hospital Road" },
+
+    { "id": 13, "district_id": 21, "name": "Suuqa Berbera (Market Street)" },
+    { "id": 14, "district_id": 25, "name": "Harbour Road" }
+  ],
+
+  "waste_types": [
+    { "id": 1, "name": "Household / Guri", "est_fee": 2.0 },
+    { "id": 2, "name": "Organic / Dabiici", "est_fee": 1.5 },
+    { "id": 3, "name": "Recyclable / Dib-loo-warshadeeyn", "est_fee": 1.0 },
+    { "id": 4, "name": "Bulky / Weyn", "est_fee": 5.0 },
+    { "id": 5, "name": "Garden / Beer", "est_fee": 2.5 }
+  ],
+
+  "sizes": ["Small / Yar", "Medium / Dhexdhexaad", "Large / Weyn"],
+
+  "time_slots": ["Morning / Subax", "Afternoon / Duhur", "Evening / Fiid"],
+
+  "payment_methods": ["Cash", "Zaad", "E-Dahab", "EVC Plus"],
+
+  "demo_users": [
+    {
+      "full_name": "Test Client",
+      "phone": "0630000001",
+      "password": "123456",
+      "role": "client",
+      "city_id": 1,
+      "district_id": 5,
+      "street_id": 2,
+      "landmark_note": "Near the blue mosque"
+    },
+    {
+      "full_name": "Test Driver",
+      "phone": "0630000002",
+      "password": "123456",
+      "role": "driver",
+      "vehicle_plate": "HGA-1234",
+      "vehicle_type": "Truck",
+      "service_city_id": 1
+    }
+  ]
+}
