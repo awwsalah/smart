@@ -125,7 +125,9 @@ class _DriverHomeScreenState extends State<DriverHomeScreen> {
                 children: [
                   Text(
                     'Welcome, ${driver?.fullName ?? 'Driver'}',
-                    style: Theme.of(context).textTheme.titleLarge,
+                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                          color: context.appColors.onGradient,
+                        ),
                   )
                       .animate()
                       .fadeIn(duration: 400.ms)
@@ -135,7 +137,8 @@ class _DriverHomeScreenState extends State<DriverHomeScreen> {
                     Text(
                       '${driver!.vehicleType} • Service city filter active',
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color: Colors.white.withValues(alpha: 0.85),
+                            color: context.appColors.onGradient
+                                .withValues(alpha: 0.85),
                           ),
                     ),
                   ],

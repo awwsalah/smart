@@ -4,6 +4,7 @@ import '../models/city.dart';
 import '../models/district.dart';
 import '../models/street.dart';
 import '../theme/app_theme.dart';
+import 'app_dropdown_field.dart';
 
 /// Cascading City → District → Street pickers for client registration.
 class AddressDropdowns extends StatelessWidget {
@@ -36,21 +37,28 @@ class AddressDropdowns extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final hintColor = Theme.of(context).colorScheme.onSurfaceVariant;
+    final colors = context.appColors;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        DropdownButtonFormField<City>(
-          initialValue: selectedCity,
+        AppDropdownField<City>(
+          value: selectedCity,
           decoration: const InputDecoration(
             labelText: 'City / Magaalo',
+          ),
+          hint: Text(
+            'Select city',
+            style: TextStyle(color: colors.textSecondary),
           ),
           items: cities
               .map(
                 (city) => DropdownMenuItem(
                   value: city,
-                  child: Text(city.name),
+                  child: Text(
+                    city.name,
+                    overflow: TextOverflow.ellipsis,
+                  ),
                 ),
               )
               .toList(),
@@ -60,18 +68,29 @@ class AddressDropdowns extends StatelessWidget {
         ),
         const SizedBox(height: AppSpacing.field),
         if (isLoadingDistricts)
-          const LinearProgressIndicator()
+          const Padding(
+            padding: EdgeInsets.symmetric(vertical: AppSpacing.sm),
+            child: LinearProgressIndicator(),
+          )
         else
-          DropdownButtonFormField<District>(
-            initialValue: selectedDistrict,
+          AppDropdownField<District>(
+            value: selectedDistrict,
             decoration: const InputDecoration(
               labelText: 'District / Xaafad',
+            ),
+            hint: Text(
+              'Select district',
+              style: TextStyle(color: colors.textSecondary),
             ),
             items: districts
                 .map(
                   (district) => DropdownMenuItem(
                     value: district,
-                    child: Text(district.name),
+                    child: Text(
+                      district.name,
+                      overflow: TextOverflow.ellipsis,
+                      maxLines: 2,
+                    ),
                   ),
                 )
                 .toList(),
@@ -81,23 +100,37 @@ class AddressDropdowns extends StatelessWidget {
           ),
         const SizedBox(height: AppSpacing.field),
         if (isLoadingStreets)
-          const LinearProgressIndicator()
+          const Padding(
+            padding: EdgeInsets.symmetric(vertical: AppSpacing.sm),
+            child: LinearProgressIndicator(),
+          )
         else if (selectedDistrict != null && streets.isEmpty)
-          Text(
-            'No listed streets for this district — use landmark note below.',
-            style: TextStyle(color: hintColor, fontSize: 13),
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: AppSpacing.xs),
+            child: Text(
+              'No listed streets for this district — use landmark note below.',
+              style: Theme.of(context).textTheme.bodySmall,
+            ),
           )
         else
-          DropdownButtonFormField<Street>(
-            initialValue: selectedStreet,
+          AppDropdownField<Street>(
+            value: selectedStreet,
             decoration: const InputDecoration(
               labelText: 'Street / Waddo (optional)',
+            ),
+            hint: Text(
+              'Select street (optional)',
+              style: TextStyle(color: colors.textSecondary),
             ),
             items: streets
                 .map(
                   (street) => DropdownMenuItem(
                     value: street,
-                    child: Text(street.name),
+                    child: Text(
+                      street.name,
+                      overflow: TextOverflow.ellipsis,
+                      maxLines: 2,
+                    ),
                   ),
                 )
                 .toList(),

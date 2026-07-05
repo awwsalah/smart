@@ -11,6 +11,8 @@ import '../theme/app_theme.dart';
 import '../utils/app_snackbar.dart';
 import '../utils/validators.dart';
 import '../widgets/address_dropdowns.dart';
+import '../widgets/app_dropdown_field.dart';
+import '../widgets/app_form_fields.dart';
 import '../widgets/app_scaffold.dart';
 import '../widgets/glass_card.dart';
 import '../widgets/gradient_button.dart';
@@ -203,6 +205,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   @override
   Widget build(BuildContext context) {
     final user = context.watch<AuthProvider>().currentUser;
+    final colors = context.appColors;
 
     return AppScaffold(
       appBar: AppBar(
@@ -211,136 +214,165 @@ class _ProfileScreenState extends State<ProfileScreen> {
       body: _loading
           ? const LoadingView(message: 'Loading profile…')
           : SingleChildScrollView(
-              padding: const EdgeInsets.all(AppSpacing.screen),
-              child: GlassCard(
-                child: Form(
+              padding: const EdgeInsets.fromLTRB(
+                AppSpacing.screen,
+                AppSpacing.screen,
+                AppSpacing.screen,
+                AppSpacing.xl,
+              ),
+              child: Form(
                 key: _formKey,
                 autovalidateMode: AutovalidateMode.onUserInteraction,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    Text(
-                      'Phone: ${user?.phone ?? ''}',
-                      style: TextStyle(
-                        color: Theme.of(context).colorScheme.onSurfaceVariant,
-                      ),
-                    ),
-                    const SizedBox(height: AppSpacing.field),
-                    TextFormField(
-                      controller: _nameController,
-                      textCapitalization: TextCapitalization.words,
-                      decoration: const InputDecoration(
-                        labelText: 'Full name',
-                      ),
-                      validator: Validators.fullName,
-                    ),
-                    const SizedBox(height: AppSpacing.section),
-                    if (user?.isClient == true) ...[
-                      AddressDropdowns(
-                        cities: _cities,
-                        districts: _districts,
-                        streets: _streets,
-                        selectedCity: _selectedCity,
-                        selectedDistrict: _selectedDistrict,
-                        selectedStreet: _selectedStreet,
-                        isLoadingDistricts: _loadingDistricts,
-                        isLoadingStreets: _loadingStreets,
-                        onCityChanged: _onCityChanged,
-                        onDistrictChanged: _onDistrictChanged,
-                        onStreetChanged: (s) =>
-                            setState(() => _selectedStreet = s),
-                      ),
-                      const SizedBox(height: AppSpacing.field),
-                      TextFormField(
-                        controller: _landmarkController,
-                        decoration: const InputDecoration(
-                          labelText: 'Landmark note',
-                        ),
-                      ),
-                    ] else ...[
-                      DropdownButtonFormField<String>(
-                        initialValue: _selectedVehicleType,
-                        decoration: const InputDecoration(
-                          labelText: 'Vehicle type',
-                        ),
-                        items: AuthService.vehicleTypes
-                            .map(
-                              (t) => DropdownMenuItem(
-                                value: t,
-                                child: Text(t),
+                    GlassCard(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          const SectionTitle('Profile / Macluumaad', inCard: true),
+                          Text(
+                            'Phone: ${user?.phone ?? ''}',
+                            style: Theme.of(context).textTheme.bodySmall,
+                          ),
+                          AppForm.fieldSpacing,
+                          AppTextField(
+                            controller: _nameController,
+                            labelText: 'Full name',
+                            textCapitalization: TextCapitalization.words,
+                            validator: Validators.fullName,
+                          ),
+                          if (user?.isClient == true) ...[
+                            AppForm.sectionSpacing,
+                            AddressDropdowns(
+                              cities: _cities,
+                              districts: _districts,
+                              streets: _streets,
+                              selectedCity: _selectedCity,
+                              selectedDistrict: _selectedDistrict,
+                              selectedStreet: _selectedStreet,
+                              isLoadingDistricts: _loadingDistricts,
+                              isLoadingStreets: _loadingStreets,
+                              onCityChanged: _onCityChanged,
+                              onDistrictChanged: _onDistrictChanged,
+                              onStreetChanged: (s) =>
+                                  setState(() => _selectedStreet = s),
+                            ),
+                            AppForm.fieldSpacing,
+                            AppTextField(
+                              controller: _landmarkController,
+                              labelText: 'Landmark note',
+                            ),
+                          ] else ...[
+                            AppForm.sectionSpacing,
+                            AppDropdownField<String>(
+                              value: _selectedVehicleType,
+                              decoration: const InputDecoration(
+                                labelText: 'Vehicle type',
                               ),
-                            )
-                            .toList(),
-                        onChanged: (v) =>
-                            setState(() => _selectedVehicleType = v),
-                        validator: (v) =>
-                            Validators.requiredSelection(v, 'a vehicle type'),
-                      ),
-                      const SizedBox(height: AppSpacing.field),
-                      TextFormField(
-                        controller: _plateController,
-                        decoration: const InputDecoration(
-                          labelText: 'Vehicle plate (optional)',
-                        ),
-                      ),
-                      const SizedBox(height: AppSpacing.field),
-                      DropdownButtonFormField<City>(
-                        initialValue: _selectedServiceCity,
-                        decoration: const InputDecoration(
-                          labelText: 'Service city',
-                        ),
-                        items: _cities
-                            .map(
-                              (c) => DropdownMenuItem(
-                                value: c,
-                                child: Text(c.name),
+                              hint: Text(
+                                'Select vehicle type',
+                                style: TextStyle(color: colors.textSecondary),
                               ),
-                            )
-                            .toList(),
-                        onChanged: (c) =>
-                            setState(() => _selectedServiceCity = c),
-                        validator: (v) =>
-                            v == null ? 'Please select a service city' : null,
-                      ),
-                    ],
-                    const SizedBox(height: AppSpacing.section),
-                    const SectionTitle('Change password (optional)'),
-                    TextFormField(
-                      controller: _currentPasswordController,
-                      obscureText: _obscureCurrent,
-                      decoration: InputDecoration(
-                        labelText: 'Current password',
-                        suffixIcon: IconButton(
-                          icon: Icon(_obscureCurrent
-                              ? Icons.visibility_outlined
-                              : Icons.visibility_off_outlined),
-                          onPressed: () =>
-                              setState(() => _obscureCurrent = !_obscureCurrent),
-                        ),
+                              items: AuthService.vehicleTypes
+                                  .map(
+                                    (t) => DropdownMenuItem(
+                                      value: t,
+                                      child: Text(t),
+                                    ),
+                                  )
+                                  .toList(),
+                              onChanged: (v) =>
+                                  setState(() => _selectedVehicleType = v),
+                              validator: (v) => Validators.requiredSelection(
+                                v,
+                                'a vehicle type',
+                              ),
+                            ),
+                            AppForm.fieldSpacing,
+                            AppTextField(
+                              controller: _plateController,
+                              labelText: 'Vehicle plate (optional)',
+                            ),
+                            AppForm.fieldSpacing,
+                            AppDropdownField<City>(
+                              value: _selectedServiceCity,
+                              decoration: const InputDecoration(
+                                labelText: 'Service city',
+                              ),
+                              hint: Text(
+                                'Select service city',
+                                style: TextStyle(color: colors.textSecondary),
+                              ),
+                              items: _cities
+                                  .map(
+                                    (c) => DropdownMenuItem(
+                                      value: c,
+                                      child: Text(
+                                        c.name,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    ),
+                                  )
+                                  .toList(),
+                              onChanged: (c) =>
+                                  setState(() => _selectedServiceCity = c),
+                              validator: (v) =>
+                                  v == null ? 'Please select a service city' : null,
+                            ),
+                          ],
+                        ],
                       ),
                     ),
-                    const SizedBox(height: AppSpacing.field),
-                    TextFormField(
-                      controller: _newPasswordController,
-                      obscureText: _obscureNew,
-                      decoration: InputDecoration(
-                        labelText: 'New password',
-                        suffixIcon: IconButton(
-                          icon: Icon(_obscureNew
-                              ? Icons.visibility_outlined
-                              : Icons.visibility_off_outlined),
-                          onPressed: () =>
-                              setState(() => _obscureNew = !_obscureNew),
-                        ),
-                      ),
-                      validator: (v) => Validators.optionalNewPassword(
-                        v,
-                        _currentPasswordController.text,
+                    const SizedBox(height: AppSpacing.md),
+                    GlassCard(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          const SectionTitle(
+                            'Change password (optional)',
+                            inCard: true,
+                          ),
+                          AppTextField(
+                            controller: _currentPasswordController,
+                            labelText: 'Current password',
+                            obscureText: _obscureCurrent,
+                            suffixIcon: IconButton(
+                              icon: Icon(_obscureCurrent
+                                  ? Icons.visibility_outlined
+                                  : Icons.visibility_off_outlined),
+                              onPressed: () => setState(
+                                () => _obscureCurrent = !_obscureCurrent,
+                              ),
+                            ),
+                          ),
+                          AppForm.fieldSpacing,
+                          AppTextField(
+                            controller: _newPasswordController,
+                            labelText: 'New password',
+                            obscureText: _obscureNew,
+                            suffixIcon: IconButton(
+                              icon: Icon(_obscureNew
+                                  ? Icons.visibility_outlined
+                                  : Icons.visibility_off_outlined),
+                              onPressed: () =>
+                                  setState(() => _obscureNew = !_obscureNew),
+                            ),
+                            validator: (v) => Validators.optionalNewPassword(
+                              v,
+                              _currentPasswordController.text,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
-                    const SizedBox(height: AppSpacing.section),
+                    AppForm.sectionSpacing,
                     _saving
-                        ? const Center(child: CircularProgressIndicator())
+                        ? Center(
+                            child: CircularProgressIndicator(
+                              color: colors.accent,
+                            ),
+                          )
                         : GradientButton(
                             onPressed: _save,
                             label: 'Save profile',
@@ -349,7 +381,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   ],
                 ),
               ),
-            ),
             ),
     );
   }

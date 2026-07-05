@@ -3,6 +3,8 @@ import 'package:flutter_animate/flutter_animate.dart';
 
 import '../theme/app_theme.dart';
 import 'glass_card.dart';
+import 'gradient_button.dart';
+import 'icon_badge.dart';
 
 /// Reusable empty list / section placeholder with gentle motion.
 class EmptyState extends StatelessWidget {
@@ -25,14 +27,13 @@ class EmptyState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.appColors;
     final content = Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Icon(
-          icon,
-          size: compact ? 40 : 64,
-          color: colors.accent,
+        IconBadge(
+          icon: icon,
+          size: compact ? 56 : 72,
+          iconSize: compact ? 28 : 36,
         )
             .animate(onPlay: (c) => c.repeat(reverse: true))
             .scale(
@@ -55,10 +56,11 @@ class EmptyState extends StatelessWidget {
         ),
         if (actionLabel != null && onAction != null) ...[
           SizedBox(height: compact ? AppSpacing.md : AppSpacing.lg),
-          FilledButton.icon(
+          GradientButton(
             onPressed: onAction,
-            icon: const Icon(Icons.add),
-            label: Text(actionLabel!),
+            label: actionLabel!,
+            icon: Icons.add,
+            expanded: false,
           ),
         ],
       ],

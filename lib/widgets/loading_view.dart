@@ -16,6 +16,8 @@ class LoadingView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.appColors;
+
     if (showSkeleton) {
       return Column(
         children: [
@@ -25,7 +27,9 @@ class LoadingView extends StatelessWidget {
               child: Text(
                 message!,
                 textAlign: TextAlign.center,
-                style: Theme.of(context).textTheme.bodySmall,
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: colors.onGradient,
+                    ),
               ),
             ),
           ],
@@ -38,13 +42,13 @@ class LoadingView extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const CircularProgressIndicator(color: Colors.white),
+          CircularProgressIndicator(color: colors.accent),
           if (message != null) ...[
             const SizedBox(height: AppSpacing.md),
             Text(
               message!,
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: Colors.white,
+                    color: colors.onGradient,
                   ),
             ),
           ],

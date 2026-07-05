@@ -14,6 +14,8 @@ import '../services/request_service.dart';
 import '../theme/app_theme.dart';
 import '../utils/app_snackbar.dart';
 import '../widgets/address_dropdowns.dart';
+import '../widgets/app_dropdown_field.dart';
+import '../widgets/app_form_fields.dart';
 import '../widgets/app_scaffold.dart';
 import '../widgets/glass_card.dart';
 import '../widgets/gradient_button.dart';
@@ -137,7 +139,7 @@ class _NewRequestScreenState extends State<NewRequestScreen> {
 
   Future<void> _pickDate() async {
     final now = DateTime.now();
-    final picked = await showDatePicker(
+    final picked = await showAppDatePicker(
       context: context,
       initialDate: _selectedDate ?? now,
       firstDate: now,
@@ -228,8 +230,18 @@ class _NewRequestScreenState extends State<NewRequestScreen> {
     );
   }
 
+  String _wasteTypeLabel(WasteType wt) =>
+      '${wt.name} (\$${wt.estFee.toStringAsFixed(1)})';
+
+  String _wasteTypeShort(WasteType wt) {
+    final parts = wt.name.split(' / ');
+    return parts.first;
+  }
+
   @override
   Widget build(BuildContext context) {
+    final colors = context.appColors;
+
     return AppScaffold(
       appBar: AppBar(
         title: const Text('New Request / Codsi Cusub'),
@@ -237,133 +249,195 @@ class _NewRequestScreenState extends State<NewRequestScreen> {
       body: _loading
           ? const LoadingView(message: 'Loading form…')
           : SingleChildScrollView(
-              padding: const EdgeInsets.all(AppSpacing.screen),
-              child: GlassCard(
-                child: Form(
+              padding: const EdgeInsets.fromLTRB(
+                AppSpacing.screen,
+                AppSpacing.screen,
+                AppSpacing.screen,
+                AppSpacing.xl,
+              ),
+              child: Form(
                 key: _formKey,
                 autovalidateMode: AutovalidateMode.onUserInteraction,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    DropdownButtonFormField<WasteType>(
-                      initialValue: _selectedWasteType,
-                      decoration: const InputDecoration(
-                        labelText: 'Waste type / Nooca qashinka',
-                      ),
-                      items: _wasteTypes
-                          .map(
-                            (wt) => DropdownMenuItem(
-                              value: wt,
-                              child: Text(
-                                '${wt.name} (\$${wt.estFee.toStringAsFixed(1)})',
-                              ),
+                    GlassCard(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          const SectionTitle(
+                            'Pickup details / Faahfaahinta',
+                            inCard: true,
+                          ),
+                          AppDropdownField<WasteType>(
+                            value: _selectedWasteType,
+                            decoration: const InputDecoration(
+                              labelText: 'Waste type',
+                              hintText: 'Nooca qashinka',
                             ),
-                          )
-                          .toList(),
-                      onChanged: (v) => setState(() => _selectedWasteType = v),
-                      validator: (v) =>
-                          v == null ? 'Please select a waste type' : null,
-                    ),
-                    const SizedBox(height: AppSpacing.field),
-                    DropdownButtonFormField<String>(
-                      initialValue: _selectedSize,
-                      decoration: const InputDecoration(
-                        labelText: 'Size / Cabir',
-                      ),
-                      items: _sizes
-                          .map(
-                            (s) => DropdownMenuItem(value: s, child: Text(s)),
-                          )
-                          .toList(),
-                      onChanged: (v) => setState(() => _selectedSize = v),
-                      validator: (v) => v == null ? 'Please select a size' : null,
-                    ),
-                    const SizedBox(height: AppSpacing.field),
-                    InkWell(
-                      onTap: _pickDate,
-                      borderRadius: BorderRadius.circular(12),
-                      child: InputDecorator(
-                        decoration: const InputDecoration(
-                          labelText: 'Preferred date / Taariikhda',
-                          suffixIcon: Icon(Icons.calendar_today),
-                        ),
-                        child: Text(
-                          _selectedDate == null
-                              ? 'Tap to choose date'
-                              : DateFormat.yMMMd().format(_selectedDate!),
-                          style: TextStyle(
-                            color: _selectedDate == null
-                                ? Theme.of(context)
-                                    .colorScheme
-                                    .onSurfaceVariant
+                            hint: Text(
+                              'Select waste type',
+                              style: TextStyle(color: colors.textSecondary),
+                            ),
+                            selectedItemBuilder: (context) => _wasteTypes
+                                .map(
+                                  (wt) => Align(
+                                    alignment: Alignment.centerLeft,
+                                    child: Text(
+                                      _wasteTypeShort(wt),
+                                      overflow: TextOverflow.ellipsis,
+                                      maxLines: 1,
+                                    ),
+                                  ),
+                                )
+                                .toList(),
+                            items: _wasteTypes
+                                .map(
+                                  (wt) => DropdownMenuItem(
+                                    value: wt,
+                                    child: Text(
+                                      _wasteTypeLabel(wt),
+                                      overflow: TextOverflow.ellipsis,
+                                      maxLines: 2,
+                                    ),
+                                  ),
+                                )
+                                .toList(),
+                            onChanged: (v) =>
+                                setState(() => _selectedWasteType = v),
+                            validator: (v) =>
+                                v == null ? 'Please select a waste type' : null,
+                          ),
+                          const SizedBox(height: AppSpacing.field),
+                          AppDropdownField<String>(
+                            value: _selectedSize,
+                            decoration: const InputDecoration(
+                              labelText: 'Size / Cabir',
+                            ),
+                            hint: Text(
+                              'Select size',
+                              style: TextStyle(color: colors.textSecondary),
+                            ),
+                            items: _sizes
+                                .map(
+                                  (s) => DropdownMenuItem(
+                                    value: s,
+                                    child: Text(
+                                      s,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ),
+                                )
+                                .toList(),
+                            onChanged: (v) => setState(() => _selectedSize = v),
+                            validator: (v) =>
+                                v == null ? 'Please select a size' : null,
+                          ),
+                          AppForm.fieldSpacing,
+                          AppDateField(
+                            labelText: 'Preferred date / Taariikhda',
+                            value: _selectedDate,
+                            onTap: _pickDate,
+                          ),
+                          AppForm.fieldSpacing,
+                          AppDropdownField<String>(
+                            value: _selectedSlot,
+                            decoration: const InputDecoration(
+                              labelText: 'Time slot / Waqtiga',
+                            ),
+                            hint: Text(
+                              'Select time slot',
+                              style: TextStyle(color: colors.textSecondary),
+                            ),
+                            items: _timeSlots
+                                .map(
+                                  (s) => DropdownMenuItem(
+                                    value: s,
+                                    child: Text(s),
+                                  ),
+                                )
+                                .toList(),
+                            onChanged: (v) => setState(() => _selectedSlot = v),
+                            validator: (v) =>
+                                v == null ? 'Please select a time slot' : null,
+                          ),
+                          const SizedBox(height: AppSpacing.field),
+                          AppDropdownField<String>(
+                            value: _selectedPayment,
+                            decoration: const InputDecoration(
+                              labelText: 'Payment method / Lacag bixin',
+                            ),
+                            hint: Text(
+                              'Select payment',
+                              style: TextStyle(color: colors.textSecondary),
+                            ),
+                            items: _paymentMethods
+                                .map(
+                                  (p) => DropdownMenuItem(
+                                    value: p,
+                                    child: Text(p),
+                                  ),
+                                )
+                                .toList(),
+                            onChanged: (v) =>
+                                setState(() => _selectedPayment = v),
+                            validator: (v) => v == null
+                                ? 'Please select a payment method'
                                 : null,
                           ),
-                        ),
+                          AppForm.fieldSpacing,
+                          AppTextField(
+                            controller: _noteController,
+                            labelText: 'Note (optional)',
+                            maxLines: 2,
+                          ),
+                        ],
                       ),
                     ),
-                    const SizedBox(height: AppSpacing.field),
-                    DropdownButtonFormField<String>(
-                      initialValue: _selectedSlot,
-                      decoration: const InputDecoration(
-                        labelText: 'Time slot / Waqtiga',
-                      ),
-                      items: _timeSlots
-                          .map(
-                            (s) => DropdownMenuItem(value: s, child: Text(s)),
-                          )
-                          .toList(),
-                      onChanged: (v) => setState(() => _selectedSlot = v),
-                      validator: (v) =>
-                          v == null ? 'Please select a time slot' : null,
-                    ),
-                    const SizedBox(height: AppSpacing.field),
-                    DropdownButtonFormField<String>(
-                      initialValue: _selectedPayment,
-                      decoration: const InputDecoration(
-                        labelText: 'Payment method / Lacag bixin',
-                      ),
-                      items: _paymentMethods
-                          .map(
-                            (p) => DropdownMenuItem(value: p, child: Text(p)),
-                          )
-                          .toList(),
-                      onChanged: (v) => setState(() => _selectedPayment = v),
-                      validator: (v) =>
-                          v == null ? 'Please select a payment method' : null,
-                    ),
-                    const SizedBox(height: AppSpacing.field),
-                    TextFormField(
-                      controller: _noteController,
-                      decoration: const InputDecoration(
-                        labelText: 'Note (optional)',
-                      ),
-                      maxLines: 2,
-                    ),
-                    const SizedBox(height: AppSpacing.section),
-                    const SectionTitle('Pickup address (from profile, editable)'),
-                    AddressDropdowns(
-                      cities: _cities,
-                      districts: _districts,
-                      streets: _streets,
-                      selectedCity: _selectedCity,
-                      selectedDistrict: _selectedDistrict,
-                      selectedStreet: _selectedStreet,
-                      isLoadingDistricts: _loadingDistricts,
-                      isLoadingStreets: _loadingStreets,
-                      onCityChanged: _onCityChanged,
-                      onDistrictChanged: _onDistrictChanged,
-                      onStreetChanged: (s) => setState(() => _selectedStreet = s),
-                    ),
-                    const SizedBox(height: AppSpacing.field),
-                    TextFormField(
-                      controller: _landmarkController,
-                      decoration: const InputDecoration(
-                        labelText: 'Landmark note',
+                    const SizedBox(height: AppSpacing.md),
+                    GlassCard(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          const SectionTitle(
+                            'Pickup address / Cinwaanka',
+                            inCard: true,
+                          ),
+                          Text(
+                            'From your profile — edit if needed',
+                            style:
+                                Theme.of(context).textTheme.bodySmall,
+                          ),
+                          const SizedBox(height: AppSpacing.field),
+                          AddressDropdowns(
+                            cities: _cities,
+                            districts: _districts,
+                            streets: _streets,
+                            selectedCity: _selectedCity,
+                            selectedDistrict: _selectedDistrict,
+                            selectedStreet: _selectedStreet,
+                            isLoadingDistricts: _loadingDistricts,
+                            isLoadingStreets: _loadingStreets,
+                            onCityChanged: _onCityChanged,
+                            onDistrictChanged: _onDistrictChanged,
+                            onStreetChanged: (s) =>
+                                setState(() => _selectedStreet = s),
+                          ),
+                          AppForm.fieldSpacing,
+                          AppTextField(
+                            controller: _landmarkController,
+                            labelText: 'Landmark note',
+                          ),
+                        ],
                       ),
                     ),
                     const SizedBox(height: AppSpacing.section),
                     _submitting
-                        ? const Center(child: CircularProgressIndicator())
+                        ? Center(
+                            child: CircularProgressIndicator(
+                              color: colors.accent,
+                            ),
+                          )
                         : GradientButton(
                             onPressed: _submit,
                             label: 'Submit request',
@@ -372,7 +446,6 @@ class _NewRequestScreenState extends State<NewRequestScreen> {
                   ],
                 ),
               ),
-            ),
             ),
     );
   }

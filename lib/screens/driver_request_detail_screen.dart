@@ -11,6 +11,7 @@ import '../widgets/contact_buttons.dart';
 import '../widgets/empty_state.dart';
 import '../widgets/glass_card.dart';
 import '../widgets/gradient_button.dart';
+import '../widgets/icon_badge.dart';
 import '../widgets/loading_view.dart';
 import '../widgets/request_status_widgets.dart';
 
@@ -165,7 +166,12 @@ class _DriverRequestDetailScreenState extends State<DriverRequestDetailScreen> {
                           Expanded(
                             child: Text(
                               request.wasteTypeName ?? 'Pickup',
-                              style: Theme.of(context).textTheme.titleLarge,
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .titleLarge
+                                  ?.copyWith(
+                                    color: context.appColors.onGradient,
+                                  ),
                             ),
                           ),
                           StatusChip(status: request.status),
@@ -203,11 +209,13 @@ class _DriverRequestDetailScreenState extends State<DriverRequestDetailScreen> {
 
   List<Widget> _buildActions(PickupRequest request, int? driverId) {
     if (_busy) {
-      return const [
+      return [
         Center(
           child: Padding(
-            padding: EdgeInsets.all(16),
-            child: CircularProgressIndicator(),
+            padding: const EdgeInsets.all(16),
+            child: CircularProgressIndicator(
+              color: context.appColors.accent,
+            ),
           ),
         ),
       ];
@@ -281,9 +289,10 @@ class _DriverRequestDetailScreenState extends State<DriverRequestDetailScreen> {
         GlassCard(
           child: Row(
             children: [
-              Icon(
-                Icons.check_circle,
-                color: context.appColors.accent,
+              IconBadge(
+                icon: Icons.check_circle,
+                size: 44,
+                iconSize: 22,
               ),
               const SizedBox(width: 12),
               Expanded(

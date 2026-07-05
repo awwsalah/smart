@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../theme/app_theme.dart';
 
-/// Slowly shifting emerald→teal gradient behind every screen.
+/// Slowly shifting navy gradient behind every screen.
 class AnimatedGradientBackground extends StatefulWidget {
   const AnimatedGradientBackground({super.key, required this.child});
 

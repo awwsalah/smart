@@ -9,6 +9,11 @@ class AppTheme {
   static const double radiusChip = 999;
   static const double radiusButton = 16;
   static const double cardPadding = 20;
+  static const EdgeInsets fieldContentPadding =
+      EdgeInsets.fromLTRB(16, 18, 16, 14);
+
+  /// Soft gold for star ratings (not the orange CTA accent).
+  static const Color starColor = Color(0xFFFBBF24);
 
   /// Status colors from PRD §4.2.
   static Color statusColor(String status) {
@@ -24,7 +29,7 @@ class AppTheme {
       case 'cancelled':
         return const Color(0xFFF43F5E);
       default:
-        return const Color(0xFF10B981);
+        return const Color(0xFF38BDF8);
     }
   }
 
@@ -50,14 +55,17 @@ class AppTheme {
   static ThemeData get dark => _build(AppColors.dark);
 
   static ThemeData _build(AppColors colors) {
-    final isDark = colors.brightness == Brightness.dark;
     final colorScheme = ColorScheme.fromSeed(
-      seedColor: colors.gradientMid,
+      seedColor: colors.accent,
       brightness: colors.brightness,
-      primary: colors.gradientMid,
-      onPrimary: Colors.white,
+      primary: colors.accent,
+      onPrimary: colors.onAccent,
+      secondary: colors.accentSecondary,
+      onSecondary: colors.onAccent,
       surface: Colors.transparent,
       onSurface: colors.textPrimary,
+      onSurfaceVariant: colors.textSecondary,
+      surfaceTint: Colors.transparent,
     );
 
     final sora = GoogleFonts.soraTextTheme();
@@ -69,6 +77,9 @@ class AppTheme {
       colorScheme: colorScheme,
       scaffoldBackgroundColor: Colors.transparent,
       extensions: [colors],
+      progressIndicatorTheme: ProgressIndicatorThemeData(
+        color: colors.accent,
+      ),
       textTheme: TextTheme(
         displaySmall: sora.displaySmall?.copyWith(
           fontSize: 28,
@@ -96,22 +107,22 @@ class AppTheme {
         elevation: 0,
         scrolledUnderElevation: 0,
         backgroundColor: Colors.transparent,
-        foregroundColor: isDark ? colors.textPrimary : Colors.white,
+        foregroundColor: colors.onGradient,
         titleTextStyle: GoogleFonts.sora(
           fontSize: 18,
           fontWeight: FontWeight.w600,
-          color: isDark ? colors.textPrimary : Colors.white,
+          color: colors.onGradient,
         ),
-        iconTheme: IconThemeData(
-          color: isDark ? colors.textPrimary : Colors.white,
-        ),
+        iconTheme: IconThemeData(color: colors.onGradient),
       ),
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
         fillColor: colors.glassFill,
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        contentPadding: fieldContentPadding,
         labelStyle: GoogleFonts.manrope(color: colors.textSecondary),
         hintStyle: GoogleFonts.manrope(color: colors.textSecondary),
+        prefixIconColor: colors.iconTint,
+        suffixIconColor: colors.iconTint,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(radiusButton),
           borderSide: BorderSide(color: colors.glassBorder),
@@ -139,17 +150,22 @@ class AppTheme {
       ),
       outlinedButtonTheme: OutlinedButtonThemeData(
         style: OutlinedButton.styleFrom(
-          foregroundColor: isDark ? colors.textPrimary : Colors.white,
-          side: BorderSide(color: colors.glassBorder),
+          foregroundColor: colors.accentSecondary,
+          side: BorderSide(color: colors.accentSecondary.withValues(alpha: 0.6)),
           padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 20),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(radiusButton),
           ),
         ),
       ),
+      textButtonTheme: TextButtonThemeData(
+        style: TextButton.styleFrom(
+          foregroundColor: colors.accentSecondary,
+        ),
+      ),
       floatingActionButtonTheme: FloatingActionButtonThemeData(
         backgroundColor: colors.accent,
-        foregroundColor: const Color(0xFF0F172A),
+        foregroundColor: colors.onAccent,
         elevation: 4,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(radiusButton),
@@ -183,7 +199,7 @@ class AppTheme {
   }
 }
 
-/// PRD §4.1 color palette via ThemeExtension.
+/// Navy + coral palette via ThemeExtension.
 @immutable
 class AppColors extends ThemeExtension<AppColors> {
   const AppColors({
@@ -192,6 +208,10 @@ class AppColors extends ThemeExtension<AppColors> {
     required this.gradientMid,
     required this.gradientBottom,
     required this.accent,
+    required this.accentSecondary,
+    required this.iconTint,
+    required this.onGradient,
+    required this.onAccent,
     required this.glassFill,
     required this.glassBorder,
     required this.textPrimary,
@@ -203,6 +223,10 @@ class AppColors extends ThemeExtension<AppColors> {
   final Color gradientMid;
   final Color gradientBottom;
   final Color accent;
+  final Color accentSecondary;
+  final Color iconTint;
+  final Color onGradient;
+  final Color onAccent;
   final Color glassFill;
   final Color glassBorder;
   final Color textPrimary;
@@ -210,24 +234,32 @@ class AppColors extends ThemeExtension<AppColors> {
 
   static const light = AppColors(
     brightness: Brightness.light,
-    gradientTop: Color(0xFF0D9488),
-    gradientMid: Color(0xFF10B981),
-    gradientBottom: Color(0xFF2DD4BF),
-    accent: Color(0xFF6EE7B7),
-    glassFill: Color(0x8CFFFFFF),
-    glassBorder: Color(0x99FFFFFF),
-    textPrimary: Color(0xFF0F172A),
-    textSecondary: Color(0xFF475569),
+    gradientTop: Color(0xFF0F172A),
+    gradientMid: Color(0xFF1E293B),
+    gradientBottom: Color(0xFF1E3A8A),
+    accent: Color(0xFFF97316),
+    accentSecondary: Color(0xFF7DD3FC),
+    iconTint: Color(0xFFA5F3FC),
+    onGradient: Color(0xFFF8FAFC),
+    onAccent: Color(0xFFFFFFFF),
+    glassFill: Color(0x1FFFFFFF),
+    glassBorder: Color(0x38FFFFFF),
+    textPrimary: Color(0xFFF8FAFC),
+    textSecondary: Color(0xFF94A3B8),
   );
 
   static const dark = AppColors(
     brightness: Brightness.dark,
-    gradientTop: Color(0xFF134E4A),
-    gradientMid: Color(0xFF0F766E),
-    gradientBottom: Color(0xFF065F46),
-    accent: Color(0xFF5EEAD4),
-    glassFill: Color(0x1AFFFFFF),
-    glassBorder: Color(0x2EFFFFFF),
+    gradientTop: Color(0xFF020617),
+    gradientMid: Color(0xFF0F172A),
+    gradientBottom: Color(0xFF172554),
+    accent: Color(0xFFFB923C),
+    accentSecondary: Color(0xFFBAE6FD),
+    iconTint: Color(0xFFCFFAFE),
+    onGradient: Color(0xFFF1F5F9),
+    onAccent: Color(0xFFFFFFFF),
+    glassFill: Color(0x14FFFFFF),
+    glassBorder: Color(0x24FFFFFF),
     textPrimary: Color(0xFFF8FAFC),
     textSecondary: Color(0xFFCBD5E1),
   );
@@ -239,6 +271,10 @@ class AppColors extends ThemeExtension<AppColors> {
     Color? gradientMid,
     Color? gradientBottom,
     Color? accent,
+    Color? accentSecondary,
+    Color? iconTint,
+    Color? onGradient,
+    Color? onAccent,
     Color? glassFill,
     Color? glassBorder,
     Color? textPrimary,
@@ -250,6 +286,10 @@ class AppColors extends ThemeExtension<AppColors> {
       gradientMid: gradientMid ?? this.gradientMid,
       gradientBottom: gradientBottom ?? this.gradientBottom,
       accent: accent ?? this.accent,
+      accentSecondary: accentSecondary ?? this.accentSecondary,
+      iconTint: iconTint ?? this.iconTint,
+      onGradient: onGradient ?? this.onGradient,
+      onAccent: onAccent ?? this.onAccent,
       glassFill: glassFill ?? this.glassFill,
       glassBorder: glassBorder ?? this.glassBorder,
       textPrimary: textPrimary ?? this.textPrimary,
@@ -266,6 +306,10 @@ class AppColors extends ThemeExtension<AppColors> {
       gradientMid: Color.lerp(gradientMid, other.gradientMid, t)!,
       gradientBottom: Color.lerp(gradientBottom, other.gradientBottom, t)!,
       accent: Color.lerp(accent, other.accent, t)!,
+      accentSecondary: Color.lerp(accentSecondary, other.accentSecondary, t)!,
+      iconTint: Color.lerp(iconTint, other.iconTint, t)!,
+      onGradient: Color.lerp(onGradient, other.onGradient, t)!,
+      onAccent: Color.lerp(onAccent, other.onAccent, t)!,
       glassFill: Color.lerp(glassFill, other.glassFill, t)!,
       glassBorder: Color.lerp(glassBorder, other.glassBorder, t)!,
       textPrimary: Color.lerp(textPrimary, other.textPrimary, t)!,

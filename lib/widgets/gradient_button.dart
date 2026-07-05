@@ -3,7 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 
 import '../theme/app_theme.dart';
 
-/// Primary CTA: mint→emerald gradient with press scale feedback.
+/// Primary CTA: coral→amber gradient with press scale feedback.
 class GradientButton extends StatefulWidget {
   const GradientButton({
     super.key,
@@ -25,6 +25,8 @@ class GradientButton extends StatefulWidget {
 class _GradientButtonState extends State<GradientButton> {
   bool _pressed = false;
 
+  static const _accentEnd = Color(0xFFEA580C);
+
   @override
   Widget build(BuildContext context) {
     final colors = context.appColors;
@@ -39,7 +41,7 @@ class _GradientButtonState extends State<GradientButton> {
           borderRadius: BorderRadius.circular(AppTheme.radiusButton),
           gradient: LinearGradient(
             colors: enabled
-                ? [colors.accent, colors.gradientMid]
+                ? [colors.accent, _accentEnd]
                 : [colors.glassFill, colors.glassFill],
           ),
           boxShadow: enabled
@@ -69,7 +71,7 @@ class _GradientButtonState extends State<GradientButton> {
                     Icon(
                       widget.icon,
                       color: enabled
-                          ? const Color(0xFF0F172A)
+                          ? colors.onAccent
                           : colors.textSecondary,
                     ),
                     const SizedBox(width: AppSpacing.sm),
@@ -80,7 +82,7 @@ class _GradientButtonState extends State<GradientButton> {
                       fontWeight: FontWeight.w700,
                       fontSize: 15,
                       color: enabled
-                          ? const Color(0xFF0F172A)
+                          ? colors.onAccent
                           : colors.textSecondary,
                     ),
                   ),

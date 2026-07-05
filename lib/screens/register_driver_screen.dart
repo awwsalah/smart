@@ -8,10 +8,13 @@ import '../services/auth_service.dart';
 import '../theme/app_theme.dart';
 import '../utils/app_snackbar.dart';
 import '../utils/validators.dart';
+import '../widgets/app_dropdown_field.dart';
+import '../widgets/app_form_fields.dart';
 import '../widgets/app_scaffold.dart';
 import '../widgets/glass_card.dart';
 import '../widgets/gradient_button.dart';
 import '../widgets/loading_view.dart';
+import '../widgets/section_title.dart';
 import 'driver_home_screen.dart';
 
 /// Driver sign-up with vehicle info and service city.
@@ -93,6 +96,8 @@ class _RegisterDriverScreenState extends State<RegisterDriverScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.appColors;
+
     return AppScaffold(
       appBar: AppBar(
         title: const Text('Register — Driver'),
@@ -100,103 +105,135 @@ class _RegisterDriverScreenState extends State<RegisterDriverScreen> {
       body: _loadingCities
           ? const LoadingView(message: 'Loading cities…')
           : SingleChildScrollView(
-              padding: const EdgeInsets.all(AppSpacing.screen),
-              child: GlassCard(
-                child: Form(
+              padding: const EdgeInsets.fromLTRB(
+                AppSpacing.screen,
+                AppSpacing.screen,
+                AppSpacing.screen,
+                AppSpacing.xl,
+              ),
+              child: Form(
                 key: _formKey,
                 autovalidateMode: AutovalidateMode.onUserInteraction,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    TextFormField(
-                      controller: _nameController,
-                      textCapitalization: TextCapitalization.words,
-                      decoration: const InputDecoration(
-                        labelText: 'Full name',
-                      ),
-                      validator: Validators.fullName,
-                    ),
-                    const SizedBox(height: AppSpacing.field),
-                    TextFormField(
-                      controller: _phoneController,
-                      keyboardType: TextInputType.phone,
-                      decoration: const InputDecoration(
-                        labelText: 'Phone number',
-                      ),
-                      validator: Validators.phone,
-                    ),
-                    const SizedBox(height: AppSpacing.field),
-                    TextFormField(
-                      controller: _passwordController,
-                      obscureText: _obscurePassword,
-                      decoration: InputDecoration(
-                        labelText: 'Password',
-                        suffixIcon: IconButton(
-                          icon: Icon(
-                            _obscurePassword
-                                ? Icons.visibility_outlined
-                                : Icons.visibility_off_outlined,
+                    GlassCard(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          const SectionTitle('Account / Akoon', inCard: true),
+                          AppTextField(
+                            controller: _nameController,
+                            labelText: 'Full name',
+                            textCapitalization: TextCapitalization.words,
+                            validator: Validators.fullName,
                           ),
-                          onPressed: () {
-                            setState(
-                              () => _obscurePassword = !_obscurePassword,
-                            );
-                          },
-                        ),
-                      ),
-                      validator: Validators.password,
-                    ),
-                    const SizedBox(height: AppSpacing.field),
-                    DropdownButtonFormField<String>(
-                      initialValue: _selectedVehicleType,
-                      decoration: const InputDecoration(
-                        labelText: 'Vehicle type',
-                      ),
-                      items: AuthService.vehicleTypes
-                          .map(
-                            (type) => DropdownMenuItem(
-                              value: type,
-                              child: Text(type),
+                          AppForm.fieldSpacing,
+                          AppTextField(
+                            controller: _phoneController,
+                            labelText: 'Phone number',
+                            keyboardType: TextInputType.phone,
+                            validator: Validators.phone,
+                          ),
+                          AppForm.fieldSpacing,
+                          AppTextField(
+                            controller: _passwordController,
+                            labelText: 'Password',
+                            obscureText: _obscurePassword,
+                            suffixIcon: IconButton(
+                              icon: Icon(
+                                _obscurePassword
+                                    ? Icons.visibility_outlined
+                                    : Icons.visibility_off_outlined,
+                              ),
+                              onPressed: () {
+                                setState(
+                                  () => _obscurePassword = !_obscurePassword,
+                                );
+                              },
                             ),
-                          )
-                          .toList(),
-                      onChanged: (value) {
-                        setState(() => _selectedVehicleType = value);
-                      },
-                      validator: (v) =>
-                          Validators.requiredSelection(v, 'a vehicle type'),
-                    ),
-                    const SizedBox(height: AppSpacing.field),
-                    TextFormField(
-                      controller: _plateController,
-                      decoration: const InputDecoration(
-                        labelText: 'Vehicle plate (optional)',
-                        hintText: 'HGA-1234',
+                            validator: Validators.password,
+                          ),
+                        ],
                       ),
                     ),
-                    const SizedBox(height: AppSpacing.field),
-                    DropdownButtonFormField<City>(
-                      initialValue: _selectedServiceCity,
-                      decoration: const InputDecoration(
-                        labelText: 'Service city / Magaalo adeeg',
-                      ),
-                      items: _cities
-                          .map(
-                            (city) => DropdownMenuItem(
-                              value: city,
-                              child: Text(city.name),
+                    const SizedBox(height: AppSpacing.md),
+                    GlassCard(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          const SectionTitle(
+                            'Vehicle / Gaadiidka',
+                            inCard: true,
+                          ),
+                          AppDropdownField<String>(
+                            value: _selectedVehicleType,
+                            decoration: const InputDecoration(
+                              labelText: 'Vehicle type',
                             ),
-                          )
-                          .toList(),
-                      onChanged: (city) {
-                        setState(() => _selectedServiceCity = city);
-                      },
-                      validator: (v) =>
-                          v == null ? 'Please select a service city' : null,
+                            hint: Text(
+                              'Select vehicle type',
+                              style: TextStyle(color: colors.textSecondary),
+                            ),
+                            items: AuthService.vehicleTypes
+                                .map(
+                                  (type) => DropdownMenuItem(
+                                    value: type,
+                                    child: Text(type),
+                                  ),
+                                )
+                                .toList(),
+                            onChanged: (value) {
+                              setState(() => _selectedVehicleType = value);
+                            },
+                            validator: (v) => Validators.requiredSelection(
+                              v,
+                              'a vehicle type',
+                            ),
+                          ),
+                          AppForm.fieldSpacing,
+                          AppTextField(
+                            controller: _plateController,
+                            labelText: 'Vehicle plate (optional)',
+                            hintText: 'HGA-1234',
+                          ),
+                          AppForm.fieldSpacing,
+                          AppDropdownField<City>(
+                            value: _selectedServiceCity,
+                            decoration: const InputDecoration(
+                              labelText: 'Service city / Magaalo adeeg',
+                            ),
+                            hint: Text(
+                              'Select service city',
+                              style: TextStyle(color: colors.textSecondary),
+                            ),
+                            items: _cities
+                                .map(
+                                  (city) => DropdownMenuItem(
+                                    value: city,
+                                    child: Text(
+                                      city.name,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ),
+                                )
+                                .toList(),
+                            onChanged: (city) {
+                              setState(() => _selectedServiceCity = city);
+                            },
+                            validator: (v) =>
+                                v == null ? 'Please select a service city' : null,
+                          ),
+                        ],
+                      ),
                     ),
-                    const SizedBox(height: AppSpacing.section),
+                    AppForm.sectionSpacing,
                     _isSubmitting
-                        ? const Center(child: CircularProgressIndicator())
+                        ? Center(
+                            child: CircularProgressIndicator(
+                              color: colors.accent,
+                            ),
+                          )
                         : GradientButton(
                             onPressed: _submit,
                             label: 'Create account',
@@ -205,7 +242,6 @@ class _RegisterDriverScreenState extends State<RegisterDriverScreen> {
                   ],
                 ),
               ),
-            ),
             ),
     );
   }

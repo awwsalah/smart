@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../models/pickup_request.dart';
 import 'glass_card.dart';
+import 'icon_badge.dart';
 import 'request_status_widgets.dart';
 
 /// Consistent request row for client and driver lists.
@@ -23,6 +24,11 @@ class RequestListTile extends StatelessWidget {
       onTap: onTap,
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       child: ListTile(
+        leading: IconBadge(
+          icon: Icons.delete_outline,
+          size: 40,
+          iconSize: 20,
+        ),
         title: Text(
           request.wasteTypeName ?? 'Pickup request',
           style: Theme.of(context).textTheme.bodyMedium?.copyWith(

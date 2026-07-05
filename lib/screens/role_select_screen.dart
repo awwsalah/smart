@@ -4,6 +4,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import '../theme/app_theme.dart';
 import '../widgets/app_scaffold.dart';
 import '../widgets/glass_card.dart';
+import '../widgets/icon_badge.dart';
 import 'login_screen.dart';
 
 /// First screen — user picks Client or Driver before login/register.
@@ -21,6 +22,8 @@ class RoleSelectScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.appColors;
+
     return AppScaffold(
       appBar: AppBar(
         title: const Text('Waste Management'),
@@ -32,10 +35,10 @@ class RoleSelectScreen extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               const SizedBox(height: AppSpacing.lg),
-              Icon(
-                Icons.recycling,
-                size: 80,
-                color: context.appColors.accent,
+              IconBadge(
+                icon: Icons.recycling,
+                size: 88,
+                iconSize: 44,
               )
                   .animate()
                   .fadeIn(duration: 500.ms)
@@ -44,14 +47,16 @@ class RoleSelectScreen extends StatelessWidget {
               Text(
                 'Choose your role',
                 textAlign: TextAlign.center,
-                style: Theme.of(context).textTheme.displaySmall,
+                style: Theme.of(context).textTheme.displaySmall?.copyWith(
+                      color: colors.onGradient,
+                    ),
               ),
               const SizedBox(height: AppSpacing.sm),
               Text(
                 'Dooro doorkaaga / Select role to continue',
                 textAlign: TextAlign.center,
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: Colors.white.withValues(alpha: 0.85),
+                      color: colors.onGradient.withValues(alpha: 0.85),
                     ),
               ),
               const Spacer(),
@@ -59,7 +64,11 @@ class RoleSelectScreen extends StatelessWidget {
                 onTap: () => _openLogin(context, 'client'),
                 child: Row(
                   children: [
-                    Icon(Icons.home_outlined, color: context.appColors.accent),
+                    const IconBadge(
+                      icon: Icons.home_outlined,
+                      size: 44,
+                      iconSize: 22,
+                    ),
                     const SizedBox(width: AppSpacing.md),
                     Expanded(
                       child: Column(
@@ -76,7 +85,7 @@ class RoleSelectScreen extends StatelessWidget {
                         ],
                       ),
                     ),
-                    const Icon(Icons.chevron_right, color: Colors.white70),
+                    Icon(Icons.chevron_right, color: colors.textSecondary),
                   ],
                 ),
               )
@@ -88,9 +97,10 @@ class RoleSelectScreen extends StatelessWidget {
                 onTap: () => _openLogin(context, 'driver'),
                 child: Row(
                   children: [
-                    Icon(
-                      Icons.local_shipping_outlined,
-                      color: context.appColors.accent,
+                    const IconBadge(
+                      icon: Icons.local_shipping_outlined,
+                      size: 44,
+                      iconSize: 22,
                     ),
                     const SizedBox(width: AppSpacing.md),
                     Expanded(
@@ -108,7 +118,7 @@ class RoleSelectScreen extends StatelessWidget {
                         ],
                       ),
                     ),
-                    const Icon(Icons.chevron_right, color: Colors.white70),
+                    Icon(Icons.chevron_right, color: colors.textSecondary),
                   ],
                 ),
               )

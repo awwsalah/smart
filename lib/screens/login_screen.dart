@@ -6,9 +6,11 @@ import '../services/auth_provider.dart';
 import '../theme/app_theme.dart';
 import '../utils/app_snackbar.dart';
 import '../utils/validators.dart';
+import '../widgets/app_form_fields.dart';
 import '../widgets/app_scaffold.dart';
 import '../widgets/glass_card.dart';
 import '../widgets/gradient_button.dart';
+import '../widgets/icon_badge.dart';
 import 'client_home_screen.dart';
 import 'driver_home_screen.dart';
 import 'register_client_screen.dart';
@@ -91,7 +93,12 @@ class _LoginScreenState extends State<LoginScreen> {
         title: Text('Login — ${widget.roleLabel}'),
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(AppSpacing.screen),
+        padding: const EdgeInsets.fromLTRB(
+          AppSpacing.screen,
+          AppSpacing.screen,
+          AppSpacing.screen,
+          AppSpacing.xl,
+        ),
         child: GlassCard(
           child: Form(
             key: _formKey,
@@ -99,42 +106,50 @@ class _LoginScreenState extends State<LoginScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                TextFormField(
+                const Center(
+                  child: IconBadge(
+                    icon: Icons.lock_outline,
+                    size: 56,
+                    iconSize: 28,
+                  ),
+                ),
+                const SizedBox(height: AppSpacing.md),
+                AppTextField(
                   controller: _phoneController,
+                  labelText: 'Phone number',
+                  hintText: '0630000001',
                   keyboardType: TextInputType.phone,
                   textInputAction: TextInputAction.next,
-                  decoration: const InputDecoration(
-                    labelText: 'Phone number',
-                    hintText: '0630000001',
-                    prefixIcon: Icon(Icons.phone_outlined),
-                  ),
+                  prefixIcon: const Icon(Icons.phone_outlined),
                   validator: Validators.phone,
                 ),
-                const SizedBox(height: AppSpacing.field),
-                TextFormField(
+                AppForm.fieldSpacing,
+                AppTextField(
                   controller: _passwordController,
+                  labelText: 'Password',
                   obscureText: _obscurePassword,
                   textInputAction: TextInputAction.done,
                   onFieldSubmitted: (_) => _submit(),
-                  decoration: InputDecoration(
-                    labelText: 'Password',
-                    prefixIcon: const Icon(Icons.lock_outline),
-                    suffixIcon: IconButton(
-                      icon: Icon(
-                        _obscurePassword
-                            ? Icons.visibility_outlined
-                            : Icons.visibility_off_outlined,
-                      ),
-                      onPressed: () {
-                        setState(() => _obscurePassword = !_obscurePassword);
-                      },
+                  prefixIcon: const Icon(Icons.lock_outline),
+                  suffixIcon: IconButton(
+                    icon: Icon(
+                      _obscurePassword
+                          ? Icons.visibility_outlined
+                          : Icons.visibility_off_outlined,
                     ),
+                    onPressed: () {
+                      setState(() => _obscurePassword = !_obscurePassword);
+                    },
                   ),
                   validator: Validators.password,
                 ),
-                const SizedBox(height: AppSpacing.section),
+                AppForm.sectionSpacing,
                 _isLoading
-                    ? const Center(child: CircularProgressIndicator())
+                    ? Center(
+                        child: CircularProgressIndicator(
+                          color: context.appColors.accent,
+                        ),
+                      )
                     : GradientButton(
                         onPressed: _submit,
                         label: 'Login',
@@ -147,16 +162,13 @@ class _LoginScreenState extends State<LoginScreen> {
                     widget.isClient
                         ? 'New client? Register here'
                         : 'New driver? Register here',
-                    style: const TextStyle(color: Colors.white),
                   ),
                 ),
                 const SizedBox(height: AppSpacing.sm),
                 Text(
                   'Demo account: $demoPhone / 123456',
                   textAlign: TextAlign.center,
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: Colors.white.withValues(alpha: 0.8),
-                      ),
+                  style: Theme.of(context).textTheme.bodySmall,
                 ),
               ],
             ),

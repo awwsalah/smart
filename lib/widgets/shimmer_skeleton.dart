@@ -19,8 +19,8 @@ class ShimmerSkeletonList extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = context.appColors;
     return Shimmer.fromColors(
-      baseColor: colors.glassFill,
-      highlightColor: colors.glassBorder,
+      baseColor: colors.glassBorder,
+      highlightColor: colors.accent.withValues(alpha: 0.35),
       child: ListView.separated(
         padding: const EdgeInsets.all(AppSpacing.list),
         physics: const NeverScrollableScrollPhysics(),

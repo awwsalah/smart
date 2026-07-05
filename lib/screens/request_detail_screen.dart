@@ -177,7 +177,12 @@ class _RequestDetailScreenState extends State<RequestDetailScreen> {
                           Expanded(
                             child: Text(
                               _request!.wasteTypeName ?? 'Pickup request',
-                              style: Theme.of(context).textTheme.titleLarge,
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .titleLarge
+                                  ?.copyWith(
+                                    color: context.appColors.onGradient,
+                                  ),
                             ),
                           ),
                           StatusChip(status: _request!.status),
@@ -190,7 +195,8 @@ class _RequestDetailScreenState extends State<RequestDetailScreen> {
                       Text(
                         _request!.statusLabel,
                         style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                              color: Colors.white.withValues(alpha: 0.85),
+                              color: context.appColors.onGradient
+                                  .withValues(alpha: 0.85),
                             ),
                       ),
                       const SizedBox(height: 16),

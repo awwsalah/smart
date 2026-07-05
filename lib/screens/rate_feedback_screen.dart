@@ -8,6 +8,7 @@ import '../services/auth_provider.dart';
 import '../services/request_service.dart';
 import '../theme/app_theme.dart';
 import '../utils/app_snackbar.dart';
+import '../widgets/app_form_fields.dart';
 import '../widgets/app_scaffold.dart';
 import '../widgets/empty_state.dart';
 import '../widgets/glass_card.dart';
@@ -117,12 +118,15 @@ class _RateFeedbackScreenState extends State<RateFeedbackScreen> {
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: List.generate(5, (index) {
                             final star = index + 1;
+                            final colors = context.appColors;
                             return IconButton(
                               iconSize: 40,
                               onPressed: () => setState(() => _stars = star),
                               icon: Icon(
                                 star <= _stars ? Icons.star : Icons.star_border,
-                                color: context.appColors.accent,
+                                color: star <= _stars
+                                    ? AppTheme.starColor
+                                    : colors.iconTint.withValues(alpha: 0.45),
                               ),
                             )
                                 .animate(target: _stars >= star ? 1 : 0)
@@ -133,17 +137,19 @@ class _RateFeedbackScreenState extends State<RateFeedbackScreen> {
                                 );
                           }),
                         ),
-                        const SizedBox(height: AppSpacing.field),
-                        TextField(
+                        AppForm.fieldSpacing,
+                        AppTextField(
                           controller: _commentController,
-                          decoration: const InputDecoration(
-                            labelText: 'Comment (optional)',
-                          ),
+                          labelText: 'Comment (optional)',
                           maxLines: 3,
                         ),
                         const Spacer(),
                         _submitting
-                            ? const Center(child: CircularProgressIndicator())
+                            ? Center(
+                                child: CircularProgressIndicator(
+                                  color: context.appColors.accent,
+                                ),
+                              )
                             : GradientButton(
                                 onPressed: _submit,
                                 label: 'Submit rating',
@@ -181,7 +187,9 @@ class RatingSummary extends StatelessWidget {
             children: List.generate(5, (i) {
               return Icon(
                 i < rating.stars ? Icons.star : Icons.star_border,
-                color: context.appColors.accent,
+                color: i < rating.stars
+                    ? AppTheme.starColor
+                    : context.appColors.iconTint.withValues(alpha: 0.45),
                 size: 20,
               );
             }),
