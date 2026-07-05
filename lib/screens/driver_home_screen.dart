@@ -5,8 +5,14 @@ import '../models/driver_dashboard_counts.dart';
 import '../models/pickup_request.dart';
 import '../services/auth_provider.dart';
 import '../services/request_service.dart';
-import '../widgets/request_status_widgets.dart';
+import '../theme/app_theme.dart';
+import '../widgets/empty_state.dart';
+import '../widgets/loading_view.dart';
+import '../widgets/request_list_tile.dart';
+import '../widgets/section_title.dart';
 import 'driver_request_detail_screen.dart';
+import 'job_history_screen.dart';
+import 'profile_screen.dart';
 import 'role_select_screen.dart';
 
 /// Pending pool + active jobs for drivers in their service city.
@@ -80,6 +86,26 @@ class _DriverHomeScreenState extends State<DriverHomeScreen> {
         title: const Text('Driver Home / Darawal'),
         actions: [
           IconButton(
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const JobHistoryScreen()),
+              );
+            },
+            icon: const Icon(Icons.history),
+            tooltip: 'Job history',
+          ),
+          IconButton(
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const ProfileScreen()),
+              );
+            },
+            icon: const Icon(Icons.person_outline),
+            tooltip: 'Profile',
+          ),
+          IconButton(
             onPressed: _logout,
             icon: const Icon(Icons.logout),
             tooltip: 'Logout',
@@ -87,64 +113,62 @@ class _DriverHomeScreenState extends State<DriverHomeScreen> {
         ],
       ),
       body: _loading
-          ? const Center(child: CircularProgressIndicator())
+          ? const LoadingView(message: 'Loading jobs…')
           : RefreshIndicator(
               onRefresh: _load,
               child: ListView(
-                padding: const EdgeInsets.all(16),
+                padding: const EdgeInsets.all(AppSpacing.list),
                 children: [
                   Text(
                     'Welcome, ${driver?.fullName ?? 'Driver'}',
-                    style: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
+                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                          fontWeight: FontWeight.bold,
+                        ),
                   ),
                   if (driver?.vehicleType != null) ...[
                     const SizedBox(height: 4),
-                    Text('${driver!.vehicleType} • Service city filter active'),
-                  ],
-                  const SizedBox(height: 16),
-                  if (_counts != null) _DashboardCards(counts: _counts!),
-                  const SizedBox(height: 24),
-                  const Text(
-                    'Pending pickups / Sugitaan',
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 8),
-                  if (_pending.isEmpty)
-                    const Card(
-                      child: Padding(
-                        padding: EdgeInsets.all(16),
-                        child: Text('No pending requests in your service city.'),
+                    Text(
+                      '${driver!.vehicleType} • Service city filter active',
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
                       ),
+                    ),
+                  ],
+                  const SizedBox(height: AppSpacing.list),
+                  if (_counts != null) _DashboardCards(counts: _counts!),
+                  const SizedBox(height: AppSpacing.section),
+                  const SectionTitle('Pending pickups / Sugitaan'),
+                  if (_pending.isEmpty)
+                    const EmptyState(
+                      compact: true,
+                      icon: Icons.inbox_outlined,
+                      title: 'No pending pickups',
+                      message:
+                          'New client requests in your service city will appear here.',
                     )
                   else
                     ..._pending.map(
-                      (request) => _RequestTile(
+                      (request) => RequestListTile(
                         request: request,
                         subtitle: request.addressSummary,
                         onTap: () => _openDetail(request),
                       ),
                     ),
-                  const SizedBox(height: 24),
-                  const Text(
-                    'My active jobs / Shaqooyinkayga',
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 8),
+                  const SizedBox(height: AppSpacing.section),
+                  const SectionTitle('My active jobs / Shaqooyinkayga'),
                   if (_activeJobs.isEmpty)
-                    const Card(
-                      child: Padding(
-                        padding: EdgeInsets.all(16),
-                        child: Text('No active jobs — accept a pending pickup.'),
-                      ),
+                    const EmptyState(
+                      compact: true,
+                      icon: Icons.work_outline,
+                      title: 'No active jobs',
+                      message: 'Accept a pending pickup to start a job.',
                     )
                   else
                     ..._activeJobs.map(
-                      (request) => _RequestTile(
+                      (request) => RequestListTile(
                         request: request,
-                        subtitle: '${request.clientName ?? 'Client'} • ${request.statusLabel}',
+                        subtitle:
+                            '${request.clientName ?? 'Client'} • ${request.statusLabel}',
                         onTap: () => _openDetail(request),
                       ),
                     ),
@@ -222,34 +246,6 @@ class _CountCard extends StatelessWidget {
             Text(label, style: const TextStyle(fontSize: 12)),
           ],
         ),
-      ),
-    );
-  }
-}
-
-class _RequestTile extends StatelessWidget {
-  const _RequestTile({
-    required this.request,
-    required this.subtitle,
-    required this.onTap,
-  });
-
-  final PickupRequest request;
-  final String subtitle;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return Card(
-      margin: const EdgeInsets.only(bottom: 8),
-      child: ListTile(
-        title: Text(
-          request.wasteTypeName ?? 'Pickup',
-          style: const TextStyle(fontWeight: FontWeight.w600),
-        ),
-        subtitle: Text(subtitle),
-        trailing: StatusChip(status: request.status),
-        onTap: onTap,
       ),
     );
   }

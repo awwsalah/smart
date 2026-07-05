@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../models/city.dart';
 import '../models/district.dart';
 import '../models/street.dart';
+import '../theme/app_theme.dart';
 
 /// Cascading City → District → Street pickers for client registration.
 class AddressDropdowns extends StatelessWidget {
@@ -35,6 +36,8 @@ class AddressDropdowns extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final hintColor = Theme.of(context).colorScheme.onSurfaceVariant;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -42,7 +45,6 @@ class AddressDropdowns extends StatelessWidget {
           initialValue: selectedCity,
           decoration: const InputDecoration(
             labelText: 'City / Magaalo',
-            border: OutlineInputBorder(),
           ),
           items: cities
               .map(
@@ -53,9 +55,10 @@ class AddressDropdowns extends StatelessWidget {
               )
               .toList(),
           onChanged: onCityChanged,
-          validator: (value) => value == null ? 'Select a city' : null,
+          validator: (value) =>
+              value == null ? 'Please select a city' : null,
         ),
-        const SizedBox(height: 16),
+        const SizedBox(height: AppSpacing.field),
         if (isLoadingDistricts)
           const LinearProgressIndicator()
         else
@@ -63,7 +66,6 @@ class AddressDropdowns extends StatelessWidget {
             initialValue: selectedDistrict,
             decoration: const InputDecoration(
               labelText: 'District / Xaafad',
-              border: OutlineInputBorder(),
             ),
             items: districts
                 .map(
@@ -74,22 +76,22 @@ class AddressDropdowns extends StatelessWidget {
                 )
                 .toList(),
             onChanged: selectedCity == null ? null : onDistrictChanged,
-            validator: (value) => value == null ? 'Select a district' : null,
+            validator: (value) =>
+                value == null ? 'Please select a district' : null,
           ),
-        const SizedBox(height: 16),
+        const SizedBox(height: AppSpacing.field),
         if (isLoadingStreets)
           const LinearProgressIndicator()
         else if (selectedDistrict != null && streets.isEmpty)
           Text(
             'No listed streets for this district — use landmark note below.',
-            style: TextStyle(color: Colors.grey.shade700, fontSize: 13),
+            style: TextStyle(color: hintColor, fontSize: 13),
           )
         else
           DropdownButtonFormField<Street>(
             initialValue: selectedStreet,
             decoration: const InputDecoration(
               labelText: 'Street / Waddo (optional)',
-              border: OutlineInputBorder(),
             ),
             items: streets
                 .map(

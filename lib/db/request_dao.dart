@@ -141,6 +141,54 @@ class RequestDao {
     );
   }
 
+  /// Client cancels while pending or accepted.
+  Future<int> cancelRequest({
+    required int requestId,
+    required int clientId,
+    required String reason,
+  }) async {
+    final db = await DatabaseHelper.instance.database;
+    return db.update(
+      'requests',
+      {
+        'status': 'cancelled',
+        'cancel_reason': reason,
+        'updated_at': DateTime.now().toIso8601String(),
+      },
+      where: "id = ? AND client_id = ? AND status IN ('pending', 'accepted')",
+      whereArgs: [requestId, clientId],
+    );
+  }
+
+  /// Past pickups for client (completed or cancelled).
+  Future<List<PickupRequest>> getHistoryByClientId(int clientId) async {
+    final db = await DatabaseHelper.instance.database;
+    final rows = await db.rawQuery(
+      '''
+      $_detailQuery
+      WHERE r.client_id = ?
+        AND r.status IN ('completed', 'cancelled')
+      ORDER BY r.updated_at DESC, r.created_at DESC
+      ''',
+      [clientId],
+    );
+    return rows.map(PickupRequest.fromMap).toList();
+  }
+
+  /// Completed jobs for a driver.
+  Future<List<PickupRequest>> getCompletedByDriverId(int driverId) async {
+    final db = await DatabaseHelper.instance.database;
+    final rows = await db.rawQuery(
+      '''
+      $_detailQuery
+      WHERE r.driver_id = ? AND r.status = 'completed'
+      ORDER BY r.updated_at DESC, r.created_at DESC
+      ''',
+      [driverId],
+    );
+    return rows.map(PickupRequest.fromMap).toList();
+  }
+
   /// Driver moves accepted → en_route → completed.
   Future<int> updateStatus({
     required int requestId,

@@ -73,7 +73,7 @@
 
   "demo_users": [
     {
-      "full_name": "Test Client",
+      "full_name": "Client",
       "phone": "0630000001",
       "password": "123456",
       "role": "client",
@@ -83,7 +83,7 @@
       "landmark_note": "Near the blue mosque"
     },
     {
-      "full_name": "Test Driver",
+      "full_name": "Driver",
       "phone": "0630000002",
       "password": "123456",
       "role": "driver",

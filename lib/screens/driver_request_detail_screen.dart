@@ -4,7 +4,11 @@ import 'package:provider/provider.dart';
 import '../models/pickup_request.dart';
 import '../services/auth_provider.dart';
 import '../services/request_service.dart';
+import '../theme/app_theme.dart';
+import '../utils/app_snackbar.dart';
 import '../widgets/contact_buttons.dart';
+import '../widgets/empty_state.dart';
+import '../widgets/loading_view.dart';
 import '../widgets/request_status_widgets.dart';
 
 /// Driver view: accept job, update status, call client.
@@ -74,18 +78,14 @@ class _DriverRequestDetailScreenState extends State<DriverRequestDetailScreen> {
     setState(() => _busy = false);
 
     if (result.error != null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(result.error!)),
-      );
+      AppSnackBar.showError(context, result.error!);
       await _load();
       return;
     }
 
     setState(() => _request = result.request);
     if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Job accepted')),
-    );
+    AppSnackBar.showSuccess(context, 'Job accepted');
   }
 
   Future<void> _advanceStatus() async {
@@ -121,14 +121,17 @@ class _DriverRequestDetailScreenState extends State<DriverRequestDetailScreen> {
     setState(() => _busy = false);
 
     if (result.error != null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(result.error!)),
-      );
+      AppSnackBar.showError(context, result.error!);
       await _load();
       return;
     }
 
     setState(() => _request = result.request);
+    if (!mounted) return;
+    AppSnackBar.showSuccess(
+      context,
+      result.request!.isCompleted ? 'Job completed' : 'Status updated',
+    );
   }
 
   @override
@@ -141,13 +144,17 @@ class _DriverRequestDetailScreenState extends State<DriverRequestDetailScreen> {
         title: const Text('Job Detail / Shaqada'),
       ),
       body: _loading
-          ? const Center(child: CircularProgressIndicator())
+          ? const LoadingView(message: 'Loading job…')
           : request == null
-              ? const Center(child: Text('Request not found'))
+              ? const EmptyState(
+                  icon: Icons.search_off_outlined,
+                  title: 'Job not found',
+                  message: 'This pickup request may no longer be available.',
+                )
               : RefreshIndicator(
                   onRefresh: _load,
                   child: ListView(
-                    padding: const EdgeInsets.all(16),
+                    padding: const EdgeInsets.all(AppSpacing.list),
                     children: [
                       Row(
                         children: [
@@ -185,7 +192,7 @@ class _DriverRequestDetailScreenState extends State<DriverRequestDetailScreen> {
                           if (request.note != null) _Row('Note', request.note),
                         ],
                       ),
-                      const SizedBox(height: 24),
+                      const SizedBox(height: AppSpacing.section),
                       ..._buildActions(request, driver?.id),
                     ],
                   ),
@@ -195,7 +202,14 @@ class _DriverRequestDetailScreenState extends State<DriverRequestDetailScreen> {
 
   List<Widget> _buildActions(PickupRequest request, int? driverId) {
     if (_busy) {
-      return [const Center(child: CircularProgressIndicator())];
+      return const [
+        Center(
+          child: Padding(
+            padding: EdgeInsets.all(16),
+            child: CircularProgressIndicator(),
+          ),
+        ),
+      ];
     }
 
     // Pending pool item — any driver in city can accept.
@@ -205,9 +219,6 @@ class _DriverRequestDetailScreenState extends State<DriverRequestDetailScreen> {
           onPressed: _accept,
           icon: const Icon(Icons.check_circle_outline),
           label: const Text('Accept job'),
-          style: FilledButton.styleFrom(
-            padding: const EdgeInsets.symmetric(vertical: 14),
-          ),
         ),
       ];
     }
@@ -215,9 +226,11 @@ class _DriverRequestDetailScreenState extends State<DriverRequestDetailScreen> {
     // Only the assigned driver can update or call.
     if (request.driverId != driverId) {
       return [
-        const Text(
-          'This job is assigned to another driver.',
-          style: TextStyle(color: Colors.grey),
+        EmptyState(
+          compact: true,
+          icon: Icons.person_off_outlined,
+          title: 'Assigned to another driver',
+          message: 'You can only manage jobs assigned to you.',
         ),
       ];
     }
@@ -234,7 +247,7 @@ class _DriverRequestDetailScreenState extends State<DriverRequestDetailScreen> {
               'Hello, I am your waste pickup driver for request #${request.id}.',
         ),
       );
-      actions.add(const SizedBox(height: 12));
+      actions.add(const SizedBox(height: AppSpacing.field));
     } else if (request.isCompleted && request.driverId == driverId) {
       actions.add(
         ContactButtons(
@@ -243,7 +256,7 @@ class _DriverRequestDetailScreenState extends State<DriverRequestDetailScreen> {
           smsLabel: 'SMS Client',
         ),
       );
-      actions.add(const SizedBox(height: 12));
+      actions.add(const SizedBox(height: AppSpacing.field));
     }
 
     if (request.isAccepted) {
@@ -252,9 +265,6 @@ class _DriverRequestDetailScreenState extends State<DriverRequestDetailScreen> {
           onPressed: _advanceStatus,
           icon: const Icon(Icons.directions_car_outlined),
           label: const Text('Mark En Route'),
-          style: FilledButton.styleFrom(
-            padding: const EdgeInsets.symmetric(vertical: 14),
-          ),
         ),
       );
     } else if (request.isEnRoute) {
@@ -263,21 +273,21 @@ class _DriverRequestDetailScreenState extends State<DriverRequestDetailScreen> {
           onPressed: _advanceStatus,
           icon: const Icon(Icons.done_all),
           label: const Text('Mark Completed'),
-          style: FilledButton.styleFrom(
-            padding: const EdgeInsets.symmetric(vertical: 14),
-          ),
         ),
       );
     } else if (request.isCompleted) {
       actions.add(
-        const Card(
+        Card(
           child: Padding(
-            padding: EdgeInsets.all(16),
+            padding: const EdgeInsets.all(16),
             child: Row(
               children: [
-                Icon(Icons.check_circle, color: Colors.green),
-                SizedBox(width: 12),
-                Text('Job completed — great work!'),
+                Icon(
+                  Icons.check_circle,
+                  color: Theme.of(context).colorScheme.primary,
+                ),
+                const SizedBox(width: 12),
+                const Text('Job completed — great work!'),
               ],
             ),
           ),

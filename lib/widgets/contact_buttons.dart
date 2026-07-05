@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../services/phone_service.dart';
+import '../utils/app_snackbar.dart';
 
 /// Call + SMS buttons shown when a contact phone number is available.
 class ContactButtons extends StatelessWidget {
@@ -19,9 +20,7 @@ class ContactButtons extends StatelessWidget {
 
   Future<void> _call(BuildContext context) async {
     if (phone.trim().isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Phone number not available')),
-      );
+      AppSnackBar.showError(context, 'Phone number not available');
       return;
     }
     final ok = await PhoneService.call(phone);
@@ -31,9 +30,7 @@ class ContactButtons extends StatelessWidget {
 
   Future<void> _sms(BuildContext context) async {
     if (phone.trim().isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Phone number not available')),
-      );
+      AppSnackBar.showError(context, 'Phone number not available');
       return;
     }
     final ok = await PhoneService.sms(phone, body: smsBody);

@@ -6,7 +6,11 @@ import '../models/city.dart';
 import '../models/district.dart';
 import '../models/street.dart';
 import '../services/auth_provider.dart';
+import '../theme/app_theme.dart';
+import '../utils/app_snackbar.dart';
+import '../utils/validators.dart';
 import '../widgets/address_dropdowns.dart';
+import '../widgets/loading_view.dart';
 import 'client_home_screen.dart';
 
 /// Client sign-up with cascading address dropdowns.
@@ -119,9 +123,7 @@ class _RegisterClientScreenState extends State<RegisterClientScreen> {
     setState(() => _isSubmitting = false);
 
     if (error != null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(error)),
-      );
+      AppSnackBar.showError(context, error);
       return;
     }
 
@@ -139,11 +141,12 @@ class _RegisterClientScreenState extends State<RegisterClientScreen> {
         title: const Text('Register — Client'),
       ),
       body: _loadingCities
-          ? const Center(child: CircularProgressIndicator())
+          ? const LoadingView(message: 'Loading cities…')
           : SingleChildScrollView(
-              padding: const EdgeInsets.all(24),
+              padding: const EdgeInsets.all(AppSpacing.screen),
               child: Form(
                 key: _formKey,
+                autovalidateMode: AutovalidateMode.onUserInteraction,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
@@ -152,34 +155,24 @@ class _RegisterClientScreenState extends State<RegisterClientScreen> {
                       textCapitalization: TextCapitalization.words,
                       decoration: const InputDecoration(
                         labelText: 'Full name',
-                        border: OutlineInputBorder(),
                       ),
-                      validator: (v) =>
-                          v == null || v.trim().isEmpty ? 'Required' : null,
+                      validator: Validators.fullName,
                     ),
-                    const SizedBox(height: 16),
+                    const SizedBox(height: AppSpacing.field),
                     TextFormField(
                       controller: _phoneController,
                       keyboardType: TextInputType.phone,
                       decoration: const InputDecoration(
                         labelText: 'Phone number',
-                        border: OutlineInputBorder(),
                       ),
-                      validator: (v) {
-                        if (v == null || v.trim().isEmpty) return 'Required';
-                        if (!RegExp(r'^[0-9]{9,15}$').hasMatch(v.trim())) {
-                          return 'Enter 9–15 digits';
-                        }
-                        return null;
-                      },
+                      validator: Validators.phone,
                     ),
-                    const SizedBox(height: 16),
+                    const SizedBox(height: AppSpacing.field),
                     TextFormField(
                       controller: _passwordController,
                       obscureText: _obscurePassword,
                       decoration: InputDecoration(
                         labelText: 'Password',
-                        border: const OutlineInputBorder(),
                         suffixIcon: IconButton(
                           icon: Icon(
                             _obscurePassword
@@ -193,13 +186,9 @@ class _RegisterClientScreenState extends State<RegisterClientScreen> {
                           },
                         ),
                       ),
-                      validator: (v) {
-                        if (v == null || v.isEmpty) return 'Required';
-                        if (v.length < 6) return 'At least 6 characters';
-                        return null;
-                      },
+                      validator: Validators.password,
                     ),
-                    const SizedBox(height: 24),
+                    const SizedBox(height: AppSpacing.section),
                     AddressDropdowns(
                       cities: _cities,
                       districts: _districts,
@@ -215,22 +204,18 @@ class _RegisterClientScreenState extends State<RegisterClientScreen> {
                         setState(() => _selectedStreet = street);
                       },
                     ),
-                    const SizedBox(height: 16),
+                    const SizedBox(height: AppSpacing.field),
                     TextFormField(
                       controller: _landmarkController,
                       decoration: const InputDecoration(
                         labelText: 'Landmark note (optional)',
                         hintText: 'Near the blue mosque',
-                        border: OutlineInputBorder(),
                       ),
                       maxLines: 2,
                     ),
-                    const SizedBox(height: 24),
+                    const SizedBox(height: AppSpacing.section),
                     FilledButton(
                       onPressed: _isSubmitting ? null : _submit,
-                      style: FilledButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(vertical: 14),
-                      ),
                       child: _isSubmitting
                           ? const SizedBox(
                               height: 20,

@@ -1,7 +1,9 @@
+import '../db/rating_dao.dart';
 import '../db/request_dao.dart';
 import '../db/waste_type_dao.dart';
 import '../models/driver_dashboard_counts.dart';
 import '../models/pickup_request.dart';
+import '../models/rating.dart';
 import '../models/user.dart';
 import 'notification_service.dart';
 
@@ -10,11 +12,14 @@ class RequestService {
   RequestService({
     RequestDao? requestDao,
     WasteTypeDao? wasteTypeDao,
+    RatingDao? ratingDao,
   })  : _requestDao = requestDao ?? RequestDao(),
-        _wasteTypeDao = wasteTypeDao ?? WasteTypeDao();
+        _wasteTypeDao = wasteTypeDao ?? WasteTypeDao(),
+        _ratingDao = ratingDao ?? RatingDao();
 
   final RequestDao _requestDao;
   final WasteTypeDao _wasteTypeDao;
+  final RatingDao _ratingDao;
 
   Future<List<PickupRequest>> getClientRequests(int clientId) {
     return _requestDao.getByClientId(clientId);
@@ -161,5 +166,88 @@ class RequestService {
     final id = await _requestDao.insert(draft);
     final saved = await _requestDao.getById(id);
     return (request: saved, error: null);
+  }
+
+  Future<List<PickupRequest>> getClientHistory(int clientId) {
+    return _requestDao.getHistoryByClientId(clientId);
+  }
+
+  Future<List<PickupRequest>> getDriverJobHistory(int driverId) {
+    return _requestDao.getCompletedByDriverId(driverId);
+  }
+
+  Future<bool> hasRating(int requestId) {
+    return _ratingDao.existsForRequest(requestId);
+  }
+
+  Future<Rating?> getRating(int requestId) {
+    return _ratingDao.getByRequestId(requestId);
+  }
+
+  Future<({PickupRequest? request, String? error})> cancelRequest({
+    required User client,
+    required int requestId,
+    required String reason,
+  }) async {
+    if (client.id == null) {
+      return (request: null, error: 'Client account not found');
+    }
+    if (reason.trim().isEmpty) {
+      return (request: null, error: 'Cancellation reason is required');
+    }
+
+    final rowsUpdated = await _requestDao.cancelRequest(
+      requestId: requestId,
+      clientId: client.id!,
+      reason: reason.trim(),
+    );
+    if (rowsUpdated == 0) {
+      return (
+        request: null,
+        error: 'Cannot cancel — request may already be in progress or done',
+      );
+    }
+
+    final saved = await _requestDao.getById(requestId);
+    if (saved != null) {
+      await NotificationService.instance.notifyStatusChange(saved);
+    }
+    return (request: saved, error: null);
+  }
+
+  Future<({Rating? rating, String? error})> submitRating({
+    required User client,
+    required PickupRequest request,
+    required int stars,
+    String? comment,
+  }) async {
+    if (client.id == null) {
+      return (rating: null, error: 'Client account not found');
+    }
+    if (request.clientId != client.id) {
+      return (rating: null, error: 'Not your request');
+    }
+    if (!request.isCompleted) {
+      return (rating: null, error: 'You can only rate completed pickups');
+    }
+    if (request.driverId == null) {
+      return (rating: null, error: 'No driver assigned to this request');
+    }
+    if (stars < 1 || stars > 5) {
+      return (rating: null, error: 'Select a rating from 1 to 5 stars');
+    }
+    if (await _ratingDao.existsForRequest(request.id)) {
+      return (rating: null, error: 'You already rated this pickup');
+    }
+
+    await _ratingDao.insert(
+      requestId: request.id,
+      clientId: client.id!,
+      driverId: request.driverId!,
+      stars: stars,
+      comment: comment?.trim().isEmpty == true ? null : comment?.trim(),
+    );
+    final rating = await _ratingDao.getByRequestId(request.id);
+    return (rating: rating, error: null);
   }
 }

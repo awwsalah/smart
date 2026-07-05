@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../services/auth_provider.dart';
+import '../theme/app_theme.dart';
+import '../utils/app_snackbar.dart';
+import '../utils/validators.dart';
 import 'client_home_screen.dart';
 import 'driver_home_screen.dart';
 import 'register_client_screen.dart';
@@ -50,9 +53,7 @@ class _LoginScreenState extends State<LoginScreen> {
     setState(() => _isLoading = false);
 
     if (error != null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(error)),
-      );
+      AppSnackBar.showError(context, error);
       return;
     }
 
@@ -79,43 +80,39 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final demoPhone = widget.isClient ? '0630000001' : '0630000002';
+
     return Scaffold(
       appBar: AppBar(
         title: Text('Login — ${widget.roleLabel}'),
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(24),
+        padding: const EdgeInsets.all(AppSpacing.screen),
         child: Form(
           key: _formKey,
+          autovalidateMode: AutovalidateMode.onUserInteraction,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               TextFormField(
                 controller: _phoneController,
                 keyboardType: TextInputType.phone,
+                textInputAction: TextInputAction.next,
                 decoration: const InputDecoration(
                   labelText: 'Phone number',
                   hintText: '0630000001',
-                  border: OutlineInputBorder(),
                   prefixIcon: Icon(Icons.phone_outlined),
                 ),
-                validator: (value) {
-                  if (value == null || value.trim().isEmpty) {
-                    return 'Phone number is required';
-                  }
-                  if (!RegExp(r'^[0-9]{9,15}$').hasMatch(value.trim())) {
-                    return 'Enter 9–15 digits';
-                  }
-                  return null;
-                },
+                validator: Validators.phone,
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: AppSpacing.field),
               TextFormField(
                 controller: _passwordController,
                 obscureText: _obscurePassword,
+                textInputAction: TextInputAction.done,
+                onFieldSubmitted: (_) => _submit(),
                 decoration: InputDecoration(
                   labelText: 'Password',
-                  border: const OutlineInputBorder(),
                   prefixIcon: const Icon(Icons.lock_outline),
                   suffixIcon: IconButton(
                     icon: Icon(
@@ -128,22 +125,11 @@ class _LoginScreenState extends State<LoginScreen> {
                     },
                   ),
                 ),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Password is required';
-                  }
-                  if (value.length < 6) {
-                    return 'At least 6 characters';
-                  }
-                  return null;
-                },
+                validator: Validators.password,
               ),
-              const SizedBox(height: 24),
+              const SizedBox(height: AppSpacing.section),
               FilledButton(
                 onPressed: _isLoading ? null : _submit,
-                style: FilledButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 14),
-                ),
                 child: _isLoading
                     ? const SizedBox(
                         height: 20,
@@ -152,7 +138,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       )
                     : const Text('Login'),
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 12),
               TextButton(
                 onPressed: _isLoading ? null : _openRegister,
                 child: Text(
@@ -161,21 +147,15 @@ class _LoginScreenState extends State<LoginScreen> {
                       : 'New driver? Register here',
                 ),
               ),
-              if (!widget.isClient) ...[
-                const SizedBox(height: 8),
-                Text(
-                  'Demo: 0630000002 / 123456',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(color: Colors.grey.shade600, fontSize: 12),
+              const SizedBox(height: 8),
+              Text(
+                'Demo account: $demoPhone / 123456',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  fontSize: 12,
                 ),
-              ] else ...[
-                const SizedBox(height: 8),
-                Text(
-                  'Demo: 0630000001 / 123456',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(color: Colors.grey.shade600, fontSize: 12),
-                ),
-              ],
+              ),
             ],
           ),
         ),

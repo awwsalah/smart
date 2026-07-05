@@ -5,6 +5,10 @@ import '../db/location_dao.dart';
 import '../models/city.dart';
 import '../services/auth_provider.dart';
 import '../services/auth_service.dart';
+import '../theme/app_theme.dart';
+import '../utils/app_snackbar.dart';
+import '../utils/validators.dart';
+import '../widgets/loading_view.dart';
 import 'driver_home_screen.dart';
 
 /// Driver sign-up with vehicle info and service city.
@@ -73,9 +77,7 @@ class _RegisterDriverScreenState extends State<RegisterDriverScreen> {
     setState(() => _isSubmitting = false);
 
     if (error != null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(error)),
-      );
+      AppSnackBar.showError(context, error);
       return;
     }
 
@@ -93,11 +95,12 @@ class _RegisterDriverScreenState extends State<RegisterDriverScreen> {
         title: const Text('Register — Driver'),
       ),
       body: _loadingCities
-          ? const Center(child: CircularProgressIndicator())
+          ? const LoadingView(message: 'Loading cities…')
           : SingleChildScrollView(
-              padding: const EdgeInsets.all(24),
+              padding: const EdgeInsets.all(AppSpacing.screen),
               child: Form(
                 key: _formKey,
+                autovalidateMode: AutovalidateMode.onUserInteraction,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
@@ -106,34 +109,24 @@ class _RegisterDriverScreenState extends State<RegisterDriverScreen> {
                       textCapitalization: TextCapitalization.words,
                       decoration: const InputDecoration(
                         labelText: 'Full name',
-                        border: OutlineInputBorder(),
                       ),
-                      validator: (v) =>
-                          v == null || v.trim().isEmpty ? 'Required' : null,
+                      validator: Validators.fullName,
                     ),
-                    const SizedBox(height: 16),
+                    const SizedBox(height: AppSpacing.field),
                     TextFormField(
                       controller: _phoneController,
                       keyboardType: TextInputType.phone,
                       decoration: const InputDecoration(
                         labelText: 'Phone number',
-                        border: OutlineInputBorder(),
                       ),
-                      validator: (v) {
-                        if (v == null || v.trim().isEmpty) return 'Required';
-                        if (!RegExp(r'^[0-9]{9,15}$').hasMatch(v.trim())) {
-                          return 'Enter 9–15 digits';
-                        }
-                        return null;
-                      },
+                      validator: Validators.phone,
                     ),
-                    const SizedBox(height: 16),
+                    const SizedBox(height: AppSpacing.field),
                     TextFormField(
                       controller: _passwordController,
                       obscureText: _obscurePassword,
                       decoration: InputDecoration(
                         labelText: 'Password',
-                        border: const OutlineInputBorder(),
                         suffixIcon: IconButton(
                           icon: Icon(
                             _obscurePassword
@@ -147,18 +140,13 @@ class _RegisterDriverScreenState extends State<RegisterDriverScreen> {
                           },
                         ),
                       ),
-                      validator: (v) {
-                        if (v == null || v.isEmpty) return 'Required';
-                        if (v.length < 6) return 'At least 6 characters';
-                        return null;
-                      },
+                      validator: Validators.password,
                     ),
-                    const SizedBox(height: 16),
+                    const SizedBox(height: AppSpacing.field),
                     DropdownButtonFormField<String>(
                       initialValue: _selectedVehicleType,
                       decoration: const InputDecoration(
                         labelText: 'Vehicle type',
-                        border: OutlineInputBorder(),
                       ),
                       items: AuthService.vehicleTypes
                           .map(
@@ -171,23 +159,22 @@ class _RegisterDriverScreenState extends State<RegisterDriverScreen> {
                       onChanged: (value) {
                         setState(() => _selectedVehicleType = value);
                       },
-                      validator: (v) => v == null ? 'Select vehicle type' : null,
+                      validator: (v) =>
+                          Validators.requiredSelection(v, 'a vehicle type'),
                     ),
-                    const SizedBox(height: 16),
+                    const SizedBox(height: AppSpacing.field),
                     TextFormField(
                       controller: _plateController,
                       decoration: const InputDecoration(
                         labelText: 'Vehicle plate (optional)',
                         hintText: 'HGA-1234',
-                        border: OutlineInputBorder(),
                       ),
                     ),
-                    const SizedBox(height: 16),
+                    const SizedBox(height: AppSpacing.field),
                     DropdownButtonFormField<City>(
                       initialValue: _selectedServiceCity,
                       decoration: const InputDecoration(
                         labelText: 'Service city / Magaalo adeeg',
-                        border: OutlineInputBorder(),
                       ),
                       items: _cities
                           .map(
@@ -200,14 +187,12 @@ class _RegisterDriverScreenState extends State<RegisterDriverScreen> {
                       onChanged: (city) {
                         setState(() => _selectedServiceCity = city);
                       },
-                      validator: (v) => v == null ? 'Select service city' : null,
+                      validator: (v) =>
+                          v == null ? 'Please select a service city' : null,
                     ),
-                    const SizedBox(height: 24),
+                    const SizedBox(height: AppSpacing.section),
                     FilledButton(
                       onPressed: _isSubmitting ? null : _submit,
-                      style: FilledButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(vertical: 14),
-                      ),
                       child: _isSubmitting
                           ? const SizedBox(
                               height: 20,

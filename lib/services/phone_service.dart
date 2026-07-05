@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../utils/app_snackbar.dart';
+
 /// Opens the native dialer or SMS app (no in-app chat).
 class PhoneService {
   /// Launches `tel:` URI — returns false if the dialer cannot open.
@@ -33,8 +35,6 @@ class PhoneService {
   }
 
   static void showContactError(BuildContext context) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Could not open phone or SMS app')),
-    );
+    AppSnackBar.showError(context, 'Could not open phone or SMS app');
   }
 }

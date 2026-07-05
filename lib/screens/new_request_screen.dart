@@ -11,7 +11,11 @@ import '../models/waste_type.dart';
 import '../services/auth_provider.dart';
 import '../services/reference_data_service.dart';
 import '../services/request_service.dart';
+import '../theme/app_theme.dart';
+import '../utils/app_snackbar.dart';
 import '../widgets/address_dropdowns.dart';
+import '../widgets/loading_view.dart';
+import '../widgets/section_title.dart';
 import 'request_detail_screen.dart';
 
 /// Form to create a new waste pickup request.
@@ -180,9 +184,7 @@ class _NewRequestScreenState extends State<NewRequestScreen> {
   Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) return;
     if (_selectedDate == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Select a preferred date')),
-      );
+      AppSnackBar.showError(context, 'Please select a preferred date');
       return;
     }
     if (_selectedCity == null || _selectedDistrict == null) {
@@ -211,9 +213,7 @@ class _NewRequestScreenState extends State<NewRequestScreen> {
     setState(() => _submitting = false);
 
     if (result.error != null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(result.error!)),
-      );
+      AppSnackBar.showError(context, result.error!);
       return;
     }
 
@@ -232,11 +232,12 @@ class _NewRequestScreenState extends State<NewRequestScreen> {
         title: const Text('New Request / Codsi Cusub'),
       ),
       body: _loading
-          ? const Center(child: CircularProgressIndicator())
+          ? const LoadingView(message: 'Loading form…')
           : SingleChildScrollView(
-              padding: const EdgeInsets.all(24),
+              padding: const EdgeInsets.all(AppSpacing.screen),
               child: Form(
                 key: _formKey,
+                autovalidateMode: AutovalidateMode.onUserInteraction,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
@@ -244,7 +245,6 @@ class _NewRequestScreenState extends State<NewRequestScreen> {
                       initialValue: _selectedWasteType,
                       decoration: const InputDecoration(
                         labelText: 'Waste type / Nooca qashinka',
-                        border: OutlineInputBorder(),
                       ),
                       items: _wasteTypes
                           .map(
@@ -257,14 +257,14 @@ class _NewRequestScreenState extends State<NewRequestScreen> {
                           )
                           .toList(),
                       onChanged: (v) => setState(() => _selectedWasteType = v),
-                      validator: (v) => v == null ? 'Select waste type' : null,
+                      validator: (v) =>
+                          v == null ? 'Please select a waste type' : null,
                     ),
-                    const SizedBox(height: 16),
+                    const SizedBox(height: AppSpacing.field),
                     DropdownButtonFormField<String>(
                       initialValue: _selectedSize,
                       decoration: const InputDecoration(
                         labelText: 'Size / Cabir',
-                        border: OutlineInputBorder(),
                       ),
                       items: _sizes
                           .map(
@@ -272,30 +272,36 @@ class _NewRequestScreenState extends State<NewRequestScreen> {
                           )
                           .toList(),
                       onChanged: (v) => setState(() => _selectedSize = v),
-                      validator: (v) => v == null ? 'Select size' : null,
+                      validator: (v) => v == null ? 'Please select a size' : null,
                     ),
-                    const SizedBox(height: 16),
+                    const SizedBox(height: AppSpacing.field),
                     InkWell(
                       onTap: _pickDate,
+                      borderRadius: BorderRadius.circular(12),
                       child: InputDecorator(
                         decoration: const InputDecoration(
                           labelText: 'Preferred date / Taariikhda',
-                          border: OutlineInputBorder(),
                           suffixIcon: Icon(Icons.calendar_today),
                         ),
                         child: Text(
                           _selectedDate == null
                               ? 'Tap to choose date'
                               : DateFormat.yMMMd().format(_selectedDate!),
+                          style: TextStyle(
+                            color: _selectedDate == null
+                                ? Theme.of(context)
+                                    .colorScheme
+                                    .onSurfaceVariant
+                                : null,
+                          ),
                         ),
                       ),
                     ),
-                    const SizedBox(height: 16),
+                    const SizedBox(height: AppSpacing.field),
                     DropdownButtonFormField<String>(
                       initialValue: _selectedSlot,
                       decoration: const InputDecoration(
                         labelText: 'Time slot / Waqtiga',
-                        border: OutlineInputBorder(),
                       ),
                       items: _timeSlots
                           .map(
@@ -303,14 +309,14 @@ class _NewRequestScreenState extends State<NewRequestScreen> {
                           )
                           .toList(),
                       onChanged: (v) => setState(() => _selectedSlot = v),
-                      validator: (v) => v == null ? 'Select time slot' : null,
+                      validator: (v) =>
+                          v == null ? 'Please select a time slot' : null,
                     ),
-                    const SizedBox(height: 16),
+                    const SizedBox(height: AppSpacing.field),
                     DropdownButtonFormField<String>(
                       initialValue: _selectedPayment,
                       decoration: const InputDecoration(
                         labelText: 'Payment method / Lacag bixin',
-                        border: OutlineInputBorder(),
                       ),
                       items: _paymentMethods
                           .map(
@@ -319,23 +325,18 @@ class _NewRequestScreenState extends State<NewRequestScreen> {
                           .toList(),
                       onChanged: (v) => setState(() => _selectedPayment = v),
                       validator: (v) =>
-                          v == null ? 'Select payment method' : null,
+                          v == null ? 'Please select a payment method' : null,
                     ),
-                    const SizedBox(height: 16),
+                    const SizedBox(height: AppSpacing.field),
                     TextFormField(
                       controller: _noteController,
                       decoration: const InputDecoration(
                         labelText: 'Note (optional)',
-                        border: OutlineInputBorder(),
                       ),
                       maxLines: 2,
                     ),
-                    const SizedBox(height: 24),
-                    const Text(
-                      'Pickup address (from profile, editable)',
-                      style: TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                    const SizedBox(height: 12),
+                    const SizedBox(height: AppSpacing.section),
+                    const SectionTitle('Pickup address (from profile, editable)'),
                     AddressDropdowns(
                       cities: _cities,
                       districts: _districts,
@@ -349,20 +350,16 @@ class _NewRequestScreenState extends State<NewRequestScreen> {
                       onDistrictChanged: _onDistrictChanged,
                       onStreetChanged: (s) => setState(() => _selectedStreet = s),
                     ),
-                    const SizedBox(height: 16),
+                    const SizedBox(height: AppSpacing.field),
                     TextFormField(
                       controller: _landmarkController,
                       decoration: const InputDecoration(
                         labelText: 'Landmark note',
-                        border: OutlineInputBorder(),
                       ),
                     ),
-                    const SizedBox(height: 24),
+                    const SizedBox(height: AppSpacing.section),
                     FilledButton(
                       onPressed: _submitting ? null : _submit,
-                      style: FilledButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(vertical: 14),
-                      ),
                       child: _submitting
                           ? const SizedBox(
                               height: 20,

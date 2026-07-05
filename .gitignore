@@ -46,3 +46,4 @@ app.*.map.json
 pubspec.lock
 PRD.md 
 .cursorrules
+PRD_UI_UX.md
