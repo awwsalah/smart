@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:provider/provider.dart';
 
 import '../models/pickup_request.dart';
@@ -7,7 +8,10 @@ import '../services/auth_provider.dart';
 import '../services/request_service.dart';
 import '../theme/app_theme.dart';
 import '../utils/app_snackbar.dart';
+import '../widgets/app_scaffold.dart';
 import '../widgets/empty_state.dart';
+import '../widgets/glass_card.dart';
+import '../widgets/gradient_button.dart';
 import '../widgets/loading_view.dart';
 
 /// 1–5 star rating + optional comment after a completed pickup.
@@ -79,7 +83,7 @@ class _RateFeedbackScreenState extends State<RateFeedbackScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return AppScaffold(
       appBar: AppBar(
         title: const Text('Rate & Feedback'),
       ),
@@ -92,60 +96,66 @@ class _RateFeedbackScreenState extends State<RateFeedbackScreen> {
                   message: 'You can only rate completed pickup requests.',
                 )
               : Padding(
-              padding: const EdgeInsets.all(AppSpacing.screen),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  Text(
-                    'How was your pickup?',
-                    style: Theme.of(context).textTheme.titleLarge,
-                  ),
-                  if (_request!.driverName != null) ...[
-                    const SizedBox(height: AppSpacing.field),
-                    Text(
-                      'Driver: ${_request!.driverName}',
-                      style: TextStyle(
-                        color: Theme.of(context).colorScheme.onSurfaceVariant,
-                      ),
-                    ),
-                  ],
-                  const SizedBox(height: AppSpacing.section),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: List.generate(5, (index) {
-                      final star = index + 1;
-                      return IconButton(
-                        iconSize: 40,
-                        onPressed: () => setState(() => _stars = star),
-                        icon: Icon(
-                          star <= _stars ? Icons.star : Icons.star_border,
-                          color: Colors.amber,
+                  padding: const EdgeInsets.all(AppSpacing.screen),
+                  child: GlassCard(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        Text(
+                          'How was your pickup?',
+                          style: Theme.of(context).textTheme.titleLarge,
                         ),
-                      );
-                    }),
-                  ),
-                  const SizedBox(height: AppSpacing.field),
-                  TextField(
-                    controller: _commentController,
-                    decoration: const InputDecoration(
-                      labelText: 'Comment (optional)',
+                        if (_request!.driverName != null) ...[
+                          const SizedBox(height: AppSpacing.field),
+                          Text(
+                            'Driver: ${_request!.driverName}',
+                            style: Theme.of(context).textTheme.bodySmall,
+                          ),
+                        ],
+                        const SizedBox(height: AppSpacing.section),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: List.generate(5, (index) {
+                            final star = index + 1;
+                            return IconButton(
+                              iconSize: 40,
+                              onPressed: () => setState(() => _stars = star),
+                              icon: Icon(
+                                star <= _stars ? Icons.star : Icons.star_border,
+                                color: context.appColors.accent,
+                              ),
+                            )
+                                .animate(target: _stars >= star ? 1 : 0)
+                                .scale(
+                                  begin: const Offset(1, 1),
+                                  end: const Offset(1.15, 1.15),
+                                  duration: 150.ms,
+                                );
+                          }),
+                        ),
+                        const SizedBox(height: AppSpacing.field),
+                        TextField(
+                          controller: _commentController,
+                          decoration: const InputDecoration(
+                            labelText: 'Comment (optional)',
+                          ),
+                          maxLines: 3,
+                        ),
+                        const Spacer(),
+                        _submitting
+                            ? const Center(child: CircularProgressIndicator())
+                            : GradientButton(
+                                onPressed: _submit,
+                                label: 'Submit rating',
+                                icon: Icons.star,
+                              ),
+                      ],
                     ),
-                    maxLines: 3,
-                  ),
-                  const Spacer(),
-                  FilledButton(
-                    onPressed: _submitting ? null : _submit,
-                    child: _submitting
-                        ? const SizedBox(
-                            height: 20,
-                            width: 20,
-                            child: CircularProgressIndicator(strokeWidth: 2),
-                          )
-                        : const Text('Submit rating'),
-                  ),
-                ],
-              ),
-            ),
+                  )
+                      .animate()
+                      .fadeIn(duration: 450.ms)
+                      .slideY(begin: 0.1, curve: Curves.easeOutCubic),
+                ),
     );
   }
 }
@@ -158,32 +168,32 @@ class RatingSummary extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              'Your rating',
-              style: TextStyle(fontWeight: FontWeight.bold),
+    return GlassCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Your rating',
+            style: Theme.of(context).textTheme.titleLarge,
+          ),
+          const SizedBox(height: AppSpacing.sm),
+          Row(
+            children: List.generate(5, (i) {
+              return Icon(
+                i < rating.stars ? Icons.star : Icons.star_border,
+                color: context.appColors.accent,
+                size: 20,
+              );
+            }),
+          ),
+          if (rating.comment != null && rating.comment!.isNotEmpty) ...[
+            const SizedBox(height: AppSpacing.sm),
+            Text(
+              rating.comment!,
+              style: Theme.of(context).textTheme.bodyMedium,
             ),
-            const SizedBox(height: 8),
-            Row(
-              children: List.generate(5, (i) {
-                return Icon(
-                  i < rating.stars ? Icons.star : Icons.star_border,
-                  color: Colors.amber,
-                  size: 20,
-                );
-              }),
-            ),
-            if (rating.comment != null && rating.comment!.isNotEmpty) ...[
-              const SizedBox(height: 8),
-              Text(rating.comment!),
-            ],
           ],
-        ),
+        ],
       ),
     );
   }

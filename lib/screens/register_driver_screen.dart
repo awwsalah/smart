@@ -8,6 +8,9 @@ import '../services/auth_service.dart';
 import '../theme/app_theme.dart';
 import '../utils/app_snackbar.dart';
 import '../utils/validators.dart';
+import '../widgets/app_scaffold.dart';
+import '../widgets/glass_card.dart';
+import '../widgets/gradient_button.dart';
 import '../widgets/loading_view.dart';
 import 'driver_home_screen.dart';
 
@@ -90,7 +93,7 @@ class _RegisterDriverScreenState extends State<RegisterDriverScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return AppScaffold(
       appBar: AppBar(
         title: const Text('Register — Driver'),
       ),
@@ -98,7 +101,8 @@ class _RegisterDriverScreenState extends State<RegisterDriverScreen> {
           ? const LoadingView(message: 'Loading cities…')
           : SingleChildScrollView(
               padding: const EdgeInsets.all(AppSpacing.screen),
-              child: Form(
+              child: GlassCard(
+                child: Form(
                 key: _formKey,
                 autovalidateMode: AutovalidateMode.onUserInteraction,
                 child: Column(
@@ -191,19 +195,17 @@ class _RegisterDriverScreenState extends State<RegisterDriverScreen> {
                           v == null ? 'Please select a service city' : null,
                     ),
                     const SizedBox(height: AppSpacing.section),
-                    FilledButton(
-                      onPressed: _isSubmitting ? null : _submit,
-                      child: _isSubmitting
-                          ? const SizedBox(
-                              height: 20,
-                              width: 20,
-                              child: CircularProgressIndicator(strokeWidth: 2),
-                            )
-                          : const Text('Create account'),
-                    ),
+                    _isSubmitting
+                        ? const Center(child: CircularProgressIndicator())
+                        : GradientButton(
+                            onPressed: _submit,
+                            label: 'Create account',
+                            icon: Icons.person_add_outlined,
+                          ),
                   ],
                 ),
               ),
+            ),
             ),
     );
   }

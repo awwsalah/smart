@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:provider/provider.dart';
 
 import '../services/auth_provider.dart';
 import '../theme/app_theme.dart';
 import '../utils/app_snackbar.dart';
 import '../utils/validators.dart';
+import '../widgets/app_scaffold.dart';
+import '../widgets/glass_card.dart';
+import '../widgets/gradient_button.dart';
 import 'client_home_screen.dart';
 import 'driver_home_screen.dart';
 import 'register_client_screen.dart';
@@ -82,83 +86,85 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget build(BuildContext context) {
     final demoPhone = widget.isClient ? '0630000001' : '0630000002';
 
-    return Scaffold(
+    return AppScaffold(
       appBar: AppBar(
         title: Text('Login — ${widget.roleLabel}'),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(AppSpacing.screen),
-        child: Form(
-          key: _formKey,
-          autovalidateMode: AutovalidateMode.onUserInteraction,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              TextFormField(
-                controller: _phoneController,
-                keyboardType: TextInputType.phone,
-                textInputAction: TextInputAction.next,
-                decoration: const InputDecoration(
-                  labelText: 'Phone number',
-                  hintText: '0630000001',
-                  prefixIcon: Icon(Icons.phone_outlined),
+        child: GlassCard(
+          child: Form(
+            key: _formKey,
+            autovalidateMode: AutovalidateMode.onUserInteraction,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                TextFormField(
+                  controller: _phoneController,
+                  keyboardType: TextInputType.phone,
+                  textInputAction: TextInputAction.next,
+                  decoration: const InputDecoration(
+                    labelText: 'Phone number',
+                    hintText: '0630000001',
+                    prefixIcon: Icon(Icons.phone_outlined),
+                  ),
+                  validator: Validators.phone,
                 ),
-                validator: Validators.phone,
-              ),
-              const SizedBox(height: AppSpacing.field),
-              TextFormField(
-                controller: _passwordController,
-                obscureText: _obscurePassword,
-                textInputAction: TextInputAction.done,
-                onFieldSubmitted: (_) => _submit(),
-                decoration: InputDecoration(
-                  labelText: 'Password',
-                  prefixIcon: const Icon(Icons.lock_outline),
-                  suffixIcon: IconButton(
-                    icon: Icon(
-                      _obscurePassword
-                          ? Icons.visibility_outlined
-                          : Icons.visibility_off_outlined,
+                const SizedBox(height: AppSpacing.field),
+                TextFormField(
+                  controller: _passwordController,
+                  obscureText: _obscurePassword,
+                  textInputAction: TextInputAction.done,
+                  onFieldSubmitted: (_) => _submit(),
+                  decoration: InputDecoration(
+                    labelText: 'Password',
+                    prefixIcon: const Icon(Icons.lock_outline),
+                    suffixIcon: IconButton(
+                      icon: Icon(
+                        _obscurePassword
+                            ? Icons.visibility_outlined
+                            : Icons.visibility_off_outlined,
+                      ),
+                      onPressed: () {
+                        setState(() => _obscurePassword = !_obscurePassword);
+                      },
                     ),
-                    onPressed: () {
-                      setState(() => _obscurePassword = !_obscurePassword);
-                    },
+                  ),
+                  validator: Validators.password,
+                ),
+                const SizedBox(height: AppSpacing.section),
+                _isLoading
+                    ? const Center(child: CircularProgressIndicator())
+                    : GradientButton(
+                        onPressed: _submit,
+                        label: 'Login',
+                        icon: Icons.login,
+                      ),
+                const SizedBox(height: AppSpacing.md),
+                TextButton(
+                  onPressed: _isLoading ? null : _openRegister,
+                  child: Text(
+                    widget.isClient
+                        ? 'New client? Register here'
+                        : 'New driver? Register here',
+                    style: const TextStyle(color: Colors.white),
                   ),
                 ),
-                validator: Validators.password,
-              ),
-              const SizedBox(height: AppSpacing.section),
-              FilledButton(
-                onPressed: _isLoading ? null : _submit,
-                child: _isLoading
-                    ? const SizedBox(
-                        height: 20,
-                        width: 20,
-                        child: CircularProgressIndicator(strokeWidth: 2),
-                      )
-                    : const Text('Login'),
-              ),
-              const SizedBox(height: 12),
-              TextButton(
-                onPressed: _isLoading ? null : _openRegister,
-                child: Text(
-                  widget.isClient
-                      ? 'New client? Register here'
-                      : 'New driver? Register here',
+                const SizedBox(height: AppSpacing.sm),
+                Text(
+                  'Demo account: $demoPhone / 123456',
+                  textAlign: TextAlign.center,
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: Colors.white.withValues(alpha: 0.8),
+                      ),
                 ),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                'Demo account: $demoPhone / 123456',
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  color: Theme.of(context).colorScheme.onSurfaceVariant,
-                  fontSize: 12,
-                ),
-              ),
-            ],
+              ],
+            ),
           ),
-        ),
+        )
+            .animate()
+            .fadeIn(duration: 450.ms)
+            .slideY(begin: 0.1, curve: Curves.easeOutCubic),
       ),
     );
   }

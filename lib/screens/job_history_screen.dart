@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:provider/provider.dart';
 
 import '../models/pickup_request.dart';
 import '../services/auth_provider.dart';
 import '../services/request_service.dart';
 import '../theme/app_theme.dart';
+import '../widgets/app_scaffold.dart';
 import '../widgets/empty_state.dart';
 import '../widgets/loading_view.dart';
 import '../widgets/request_list_tile.dart';
@@ -44,7 +46,7 @@ class _JobHistoryScreenState extends State<JobHistoryScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return AppScaffold(
       appBar: AppBar(
         title: const Text('Job History / Shaqooyin hore'),
       ),
@@ -59,6 +61,7 @@ class _JobHistoryScreenState extends State<JobHistoryScreen> {
                 )
               : RefreshIndicator(
                   onRefresh: _load,
+                  color: context.appColors.accent,
                   child: ListView.builder(
                     padding: const EdgeInsets.all(AppSpacing.list),
                     itemCount: _jobs.length,
@@ -78,7 +81,13 @@ class _JobHistoryScreenState extends State<JobHistoryScreen> {
                             ),
                           );
                         },
-                      );
+                      )
+                          .animate()
+                          .fadeIn(
+                            duration: 400.ms,
+                            delay: (60 * index).ms,
+                          )
+                          .slideY(begin: 0.12, curve: Curves.easeOutCubic);
                     },
                   ),
                 ),

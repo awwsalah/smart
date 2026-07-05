@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:provider/provider.dart';
 
 import '../models/pickup_request.dart';
 import '../services/auth_provider.dart';
 import '../services/request_service.dart';
 import '../theme/app_theme.dart';
+import '../widgets/app_scaffold.dart';
 import '../widgets/empty_state.dart';
+import '../widgets/gradient_button.dart';
 import '../widgets/loading_view.dart';
 import '../widgets/request_list_tile.dart';
 import 'new_request_screen.dart';
@@ -75,7 +78,7 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return AppScaffold(
       appBar: AppBar(
         title: const Text('My Requests / Codsiyadayda'),
         actions: [
@@ -121,10 +124,12 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
                 )
               : RefreshIndicator(
                   onRefresh: _loadRequests,
+                  color: context.appColors.accent,
                   child: ListView.separated(
                     padding: const EdgeInsets.all(AppSpacing.list),
                     itemCount: _requests.length,
-                    separatorBuilder: (_, __) => const SizedBox(height: 8),
+                    separatorBuilder: (_, __) =>
+                        const SizedBox(height: AppSpacing.sm),
                     itemBuilder: (context, index) {
                       final request = _requests[index];
                       return RequestListTile(
@@ -132,15 +137,25 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
                         subtitle:
                             '${request.addressSummary}\n${request.preferredDate ?? ''} • ${request.preferredSlot ?? ''}',
                         onTap: () => _openDetail(request),
-                      );
+                      )
+                          .animate()
+                          .fadeIn(
+                            duration: 400.ms,
+                            delay: (60 * index).ms,
+                          )
+                          .slideY(begin: 0.12, curve: Curves.easeOutCubic);
                     },
                   ),
                 ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: _openNewRequest,
-        icon: const Icon(Icons.add),
-        label: const Text('New Request'),
+      floatingActionButton: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
+        child: GradientButton(
+          onPressed: _openNewRequest,
+          label: 'New Request',
+          icon: Icons.add,
+        ),
       ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
     );
   }
 }

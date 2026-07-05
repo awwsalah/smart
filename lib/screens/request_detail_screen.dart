@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:provider/provider.dart';
 
 import '../models/pickup_request.dart';
@@ -8,8 +9,11 @@ import '../services/request_service.dart';
 import '../theme/app_theme.dart';
 import '../utils/app_snackbar.dart';
 import '../utils/validators.dart';
+import '../widgets/app_scaffold.dart';
 import '../widgets/contact_buttons.dart';
 import '../widgets/empty_state.dart';
+import '../widgets/glass_card.dart';
+import '../widgets/gradient_button.dart';
 import '../widgets/loading_view.dart';
 import '../widgets/request_status_widgets.dart';
 import 'rate_feedback_screen.dart';
@@ -150,7 +154,7 @@ class _RequestDetailScreenState extends State<RequestDetailScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return AppScaffold(
       appBar: AppBar(
         title: const Text('Request Detail / Faahfaahin'),
       ),
@@ -164,6 +168,7 @@ class _RequestDetailScreenState extends State<RequestDetailScreen> {
                 )
               : RefreshIndicator(
                   onRefresh: _load,
+                  color: context.appColors.accent,
                   child: ListView(
                     padding: const EdgeInsets.all(AppSpacing.list),
                     children: [
@@ -172,19 +177,21 @@ class _RequestDetailScreenState extends State<RequestDetailScreen> {
                           Expanded(
                             child: Text(
                               _request!.wasteTypeName ?? 'Pickup request',
-                              style: const TextStyle(
-                                fontSize: 20,
-                                fontWeight: FontWeight.bold,
-                              ),
+                              style: Theme.of(context).textTheme.titleLarge,
                             ),
                           ),
                           StatusChip(status: _request!.status),
                         ],
-                      ),
-                      const SizedBox(height: 8),
+                      )
+                          .animate()
+                          .fadeIn(duration: 400.ms)
+                          .slideY(begin: 0.08),
+                      const SizedBox(height: AppSpacing.sm),
                       Text(
                         _request!.statusLabel,
-                        style: TextStyle(color: Colors.grey.shade700),
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                              color: Colors.white.withValues(alpha: 0.85),
+                            ),
                       ),
                       const SizedBox(height: 16),
                       RequestStatusTracker(status: _request!.status),
@@ -247,7 +254,7 @@ class _RequestDetailScreenState extends State<RequestDetailScreen> {
                       ],
                       const SizedBox(height: AppSpacing.section),
                       if (_busy)
-                        const LoadingView()
+                        const LoadingView(showSkeleton: false)
                       else ...[
                         if (_canCancel)
                           OutlinedButton.icon(
@@ -262,10 +269,10 @@ class _RequestDetailScreenState extends State<RequestDetailScreen> {
                         if (_canCancel && _canRate)
                           const SizedBox(height: AppSpacing.field),
                         if (_canRate)
-                          FilledButton.icon(
+                          GradientButton(
                             onPressed: _openRating,
-                            icon: const Icon(Icons.star_outline),
-                            label: const Text('Rate this pickup'),
+                            label: 'Rate this pickup',
+                            icon: Icons.star_outline,
                           ),
                       ],
                     ],
@@ -283,36 +290,36 @@ class _InfoCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
-            const SizedBox(height: 12),
-            ...rows.map(
-              (row) => Padding(
-                padding: const EdgeInsets.only(bottom: 8),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    SizedBox(
-                      width: 100,
-                      child: Text(
-                        row.label,
-                        style: const TextStyle(color: Colors.grey),
-                      ),
+    return GlassCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(title, style: Theme.of(context).textTheme.titleLarge),
+          const SizedBox(height: AppSpacing.md),
+          ...rows.map(
+            (row) => Padding(
+              padding: const EdgeInsets.only(bottom: AppSpacing.sm),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  SizedBox(
+                    width: 100,
+                    child: Text(
+                      row.label,
+                      style: Theme.of(context).textTheme.bodySmall,
                     ),
-                    Expanded(
-                      child: Text(row.value ?? '—'),
+                  ),
+                  Expanded(
+                    child: Text(
+                      row.value ?? '—',
+                      style: Theme.of(context).textTheme.bodyMedium,
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

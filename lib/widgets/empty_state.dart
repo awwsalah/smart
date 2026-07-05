@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 
-/// Reusable empty list / section placeholder.
+import '../theme/app_theme.dart';
+import 'glass_card.dart';
+
+/// Reusable empty list / section placeholder with gentle motion.
 class EmptyState extends StatelessWidget {
   const EmptyState({
     super.key,
@@ -21,35 +25,36 @@ class EmptyState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
+    final colors = context.appColors;
     final content = Column(
       mainAxisSize: MainAxisSize.min,
       children: [
         Icon(
           icon,
           size: compact ? 40 : 64,
-          color: colorScheme.outline,
-        ),
-        SizedBox(height: compact ? 8 : 16),
+          color: colors.accent,
+        )
+            .animate(onPlay: (c) => c.repeat(reverse: true))
+            .scale(
+              begin: const Offset(1, 1),
+              end: const Offset(1.06, 1.06),
+              duration: 1800.ms,
+              curve: Curves.easeInOut,
+            ),
+        SizedBox(height: compact ? AppSpacing.sm : AppSpacing.md),
         Text(
           title,
           textAlign: TextAlign.center,
-          style: TextStyle(
-            fontSize: compact ? 15 : 18,
-            fontWeight: FontWeight.bold,
-          ),
+          style: Theme.of(context).textTheme.titleLarge,
         ),
         const SizedBox(height: 6),
         Text(
           message,
           textAlign: TextAlign.center,
-          style: TextStyle(
-            color: colorScheme.onSurfaceVariant,
-            fontSize: compact ? 13 : 14,
-          ),
+          style: Theme.of(context).textTheme.bodySmall,
         ),
         if (actionLabel != null && onAction != null) ...[
-          SizedBox(height: compact ? 12 : 20),
+          SizedBox(height: compact ? AppSpacing.md : AppSpacing.lg),
           FilledButton.icon(
             onPressed: onAction,
             icon: const Icon(Icons.add),
@@ -60,18 +65,21 @@ class EmptyState extends StatelessWidget {
     );
 
     if (compact) {
-      return Card(
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: content,
-        ),
+      return GlassCard.lite(
+        padding: const EdgeInsets.all(AppSpacing.md),
+        child: content,
       );
     }
 
     return Center(
       child: Padding(
-        padding: const EdgeInsets.all(32),
-        child: content,
+        padding: const EdgeInsets.all(AppSpacing.xl),
+        child: GlassCard(
+          child: content,
+        )
+            .animate()
+            .fadeIn(duration: 450.ms)
+            .slideY(begin: 0.08, curve: Curves.easeOutCubic),
       ),
     );
   }

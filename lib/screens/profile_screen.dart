@@ -11,6 +11,9 @@ import '../theme/app_theme.dart';
 import '../utils/app_snackbar.dart';
 import '../utils/validators.dart';
 import '../widgets/address_dropdowns.dart';
+import '../widgets/app_scaffold.dart';
+import '../widgets/glass_card.dart';
+import '../widgets/gradient_button.dart';
 import '../widgets/loading_view.dart';
 import '../widgets/section_title.dart';
 
@@ -201,7 +204,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Widget build(BuildContext context) {
     final user = context.watch<AuthProvider>().currentUser;
 
-    return Scaffold(
+    return AppScaffold(
       appBar: AppBar(
         title: const Text('Profile / Macluumaadka'),
       ),
@@ -209,7 +212,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
           ? const LoadingView(message: 'Loading profile…')
           : SingleChildScrollView(
               padding: const EdgeInsets.all(AppSpacing.screen),
-              child: Form(
+              child: GlassCard(
+                child: Form(
                 key: _formKey,
                 autovalidateMode: AutovalidateMode.onUserInteraction,
                 child: Column(
@@ -335,19 +339,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       ),
                     ),
                     const SizedBox(height: AppSpacing.section),
-                    FilledButton(
-                      onPressed: _saving ? null : _save,
-                      child: _saving
-                          ? const SizedBox(
-                              height: 20,
-                              width: 20,
-                              child: CircularProgressIndicator(strokeWidth: 2),
-                            )
-                          : const Text('Save profile'),
-                    ),
+                    _saving
+                        ? const Center(child: CircularProgressIndicator())
+                        : GradientButton(
+                            onPressed: _save,
+                            label: 'Save profile',
+                            icon: Icons.save_outlined,
+                          ),
                   ],
                 ),
               ),
+            ),
             ),
     );
   }

@@ -14,6 +14,9 @@ import '../services/request_service.dart';
 import '../theme/app_theme.dart';
 import '../utils/app_snackbar.dart';
 import '../widgets/address_dropdowns.dart';
+import '../widgets/app_scaffold.dart';
+import '../widgets/glass_card.dart';
+import '../widgets/gradient_button.dart';
 import '../widgets/loading_view.dart';
 import '../widgets/section_title.dart';
 import 'request_detail_screen.dart';
@@ -227,7 +230,7 @@ class _NewRequestScreenState extends State<NewRequestScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return AppScaffold(
       appBar: AppBar(
         title: const Text('New Request / Codsi Cusub'),
       ),
@@ -235,7 +238,8 @@ class _NewRequestScreenState extends State<NewRequestScreen> {
           ? const LoadingView(message: 'Loading form…')
           : SingleChildScrollView(
               padding: const EdgeInsets.all(AppSpacing.screen),
-              child: Form(
+              child: GlassCard(
+                child: Form(
                 key: _formKey,
                 autovalidateMode: AutovalidateMode.onUserInteraction,
                 child: Column(
@@ -358,19 +362,17 @@ class _NewRequestScreenState extends State<NewRequestScreen> {
                       ),
                     ),
                     const SizedBox(height: AppSpacing.section),
-                    FilledButton(
-                      onPressed: _submitting ? null : _submit,
-                      child: _submitting
-                          ? const SizedBox(
-                              height: 20,
-                              width: 20,
-                              child: CircularProgressIndicator(strokeWidth: 2),
-                            )
-                          : const Text('Submit request'),
-                    ),
+                    _submitting
+                        ? const Center(child: CircularProgressIndicator())
+                        : GradientButton(
+                            onPressed: _submit,
+                            label: 'Submit request',
+                            icon: Icons.send_outlined,
+                          ),
                   ],
                 ),
               ),
+            ),
             ),
     );
   }

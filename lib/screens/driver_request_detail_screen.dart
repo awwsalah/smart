@@ -6,8 +6,11 @@ import '../services/auth_provider.dart';
 import '../services/request_service.dart';
 import '../theme/app_theme.dart';
 import '../utils/app_snackbar.dart';
+import '../widgets/app_scaffold.dart';
 import '../widgets/contact_buttons.dart';
 import '../widgets/empty_state.dart';
+import '../widgets/glass_card.dart';
+import '../widgets/gradient_button.dart';
 import '../widgets/loading_view.dart';
 import '../widgets/request_status_widgets.dart';
 
@@ -139,7 +142,7 @@ class _DriverRequestDetailScreenState extends State<DriverRequestDetailScreen> {
     final driver = context.watch<AuthProvider>().currentUser;
     final request = _request;
 
-    return Scaffold(
+    return AppScaffold(
       appBar: AppBar(
         title: const Text('Job Detail / Shaqada'),
       ),
@@ -153,6 +156,7 @@ class _DriverRequestDetailScreenState extends State<DriverRequestDetailScreen> {
                 )
               : RefreshIndicator(
                   onRefresh: _load,
+                  color: context.appColors.accent,
                   child: ListView(
                     padding: const EdgeInsets.all(AppSpacing.list),
                     children: [
@@ -161,10 +165,7 @@ class _DriverRequestDetailScreenState extends State<DriverRequestDetailScreen> {
                           Expanded(
                             child: Text(
                               request.wasteTypeName ?? 'Pickup',
-                              style: const TextStyle(
-                                fontSize: 20,
-                                fontWeight: FontWeight.bold,
-                              ),
+                              style: Theme.of(context).textTheme.titleLarge,
                             ),
                           ),
                           StatusChip(status: request.status),
@@ -215,10 +216,10 @@ class _DriverRequestDetailScreenState extends State<DriverRequestDetailScreen> {
     // Pending pool item — any driver in city can accept.
     if (request.isPending) {
       return [
-        FilledButton.icon(
+        GradientButton(
           onPressed: _accept,
-          icon: const Icon(Icons.check_circle_outline),
-          label: const Text('Accept job'),
+          label: 'Accept job',
+          icon: Icons.check_circle_outline,
         ),
       ];
     }
@@ -261,35 +262,37 @@ class _DriverRequestDetailScreenState extends State<DriverRequestDetailScreen> {
 
     if (request.isAccepted) {
       actions.add(
-        FilledButton.icon(
+        GradientButton(
           onPressed: _advanceStatus,
-          icon: const Icon(Icons.directions_car_outlined),
-          label: const Text('Mark En Route'),
+          label: 'Mark En Route',
+          icon: Icons.directions_car_outlined,
         ),
       );
     } else if (request.isEnRoute) {
       actions.add(
-        FilledButton.icon(
+        GradientButton(
           onPressed: _advanceStatus,
-          icon: const Icon(Icons.done_all),
-          label: const Text('Mark Completed'),
+          label: 'Mark Completed',
+          icon: Icons.done_all,
         ),
       );
     } else if (request.isCompleted) {
       actions.add(
-        Card(
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: Row(
-              children: [
-                Icon(
-                  Icons.check_circle,
-                  color: Theme.of(context).colorScheme.primary,
+        GlassCard(
+          child: Row(
+            children: [
+              Icon(
+                Icons.check_circle,
+                color: context.appColors.accent,
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  'Job completed — great work!',
+                  style: Theme.of(context).textTheme.bodyMedium,
                 ),
-                const SizedBox(width: 12),
-                const Text('Job completed — great work!'),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       );
@@ -307,31 +310,36 @@ class _Section extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
-            const SizedBox(height: 12),
-            ...rows.map(
-              (row) => Padding(
-                padding: const EdgeInsets.only(bottom: 8),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    SizedBox(
-                      width: 80,
-                      child: Text(row.label, style: const TextStyle(color: Colors.grey)),
+    return GlassCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(title, style: Theme.of(context).textTheme.titleLarge),
+          const SizedBox(height: AppSpacing.md),
+          ...rows.map(
+            (row) => Padding(
+              padding: const EdgeInsets.only(bottom: AppSpacing.sm),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  SizedBox(
+                    width: 80,
+                    child: Text(
+                      row.label,
+                      style: Theme.of(context).textTheme.bodySmall,
                     ),
-                    Expanded(child: Text(row.value ?? '—')),
-                  ],
-                ),
+                  ),
+                  Expanded(
+                    child: Text(
+                      row.value ?? '—',
+                      style: Theme.of(context).textTheme.bodyMedium,
+                    ),
+                  ),
+                ],
               ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
