@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-/// Design tokens + light/dark themes (PRD v1.1 single source of truth).
+
 class AppTheme {
   AppTheme._();
 
@@ -15,7 +15,7 @@ class AppTheme {
   /// Soft gold for star ratings (not the orange CTA accent).
   static const Color starColor = Color(0xFFFBBF24);
 
-  /// Status colors from PRD §4.2.
+  /// Status colors 
   static Color statusColor(String status) {
     switch (status) {
       case 'pending':
@@ -322,7 +322,7 @@ extension AppColorsX on BuildContext {
   AppColors get appColors => Theme.of(this).extension<AppColors>()!;
 }
 
-/// PRD §4.3 spacing tokens.
+/// spacing tokens.
 class AppSpacing {
   AppSpacing._();
 
@@ -332,7 +332,7 @@ class AppSpacing {
   static const double lg = 24;
   static const double xl = 32;
 
-  // Backward-compatible aliases used across v1.0 screens.
+  // Backward-compatible aliases used across screens.
   static const double screen = md;
   static const double list = md;
   static const double field = md;

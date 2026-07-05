@@ -3,6 +3,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:provider/provider.dart';
 
 import '../services/auth_provider.dart';
+import '../theme/app_assets.dart';
 import '../theme/app_theme.dart';
 import '../utils/app_snackbar.dart';
 import '../utils/validators.dart';
@@ -89,6 +90,7 @@ class _LoginScreenState extends State<LoginScreen> {
     final demoPhone = widget.isClient ? '0630000001' : '0630000002';
 
     return AppScaffold(
+      backgroundAsset: AppAssets.backgroundAuth,
       appBar: AppBar(
         title: Text('Login — ${widget.roleLabel}'),
       ),

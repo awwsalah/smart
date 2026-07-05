@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 
+import '../theme/app_assets.dart';
 import '../theme/app_theme.dart';
 import '../widgets/app_scaffold.dart';
 import '../widgets/glass_card.dart';
@@ -25,6 +26,7 @@ class RoleSelectScreen extends StatelessWidget {
     final colors = context.appColors;
 
     return AppScaffold(
+      backgroundAsset: AppAssets.backgroundAuth,
       appBar: AppBar(
         title: const Text('Waste Management'),
       ),

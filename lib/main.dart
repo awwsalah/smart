@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import 'db/database_helper.dart';
-import 'screens/role_select_screen.dart';
+import 'screens/splash_screen.dart';
 import 'services/auth_provider.dart';
 import 'services/notification_service.dart';
 import 'theme/app_theme.dart';
@@ -23,10 +23,11 @@ class WasteManagementApp extends StatelessWidget {
       create: (_) => AuthProvider(),
       child: MaterialApp(
         title: 'Waste Management',
+        debugShowCheckedModeBanner: false,
         theme: AppTheme.light,
         darkTheme: AppTheme.dark,
         themeMode: ThemeMode.system,
-        home: const RoleSelectScreen(),
+        home: const SplashScreen(),
       ),
     );
   }

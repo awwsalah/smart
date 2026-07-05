@@ -69,6 +69,8 @@ flutter:
 
   assets:
     - seed_data.json
+    - assets/images/bg.jpg
+    - assets/images/bg2.jpg
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images

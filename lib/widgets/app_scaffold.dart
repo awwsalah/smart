@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 
-import 'animated_gradient_background.dart';
+import '../theme/app_assets.dart';
+import 'app_background.dart';
 
-/// Shared scaffold: one gradient per screen, transparent body over it.
+/// Shared scaffold with photo background — one image layer per screen.
 class AppScaffold extends StatelessWidget {
   const AppScaffold({
     super.key,
@@ -12,6 +13,7 @@ class AppScaffold extends StatelessWidget {
     this.floatingActionButtonLocation,
     this.bottomNavigationBar,
     this.extendBody = false,
+    this.backgroundAsset = AppAssets.backgroundApp,
   });
 
   final PreferredSizeWidget? appBar;
@@ -21,9 +23,13 @@ class AppScaffold extends StatelessWidget {
   final Widget? bottomNavigationBar;
   final bool extendBody;
 
+  /// Override for auth screens (e.g. login uses [AppAssets.backgroundAuth]).
+  final String backgroundAsset;
+
   @override
   Widget build(BuildContext context) {
-    return AnimatedGradientBackground(
+    return AppBackground(
+      assetPath: backgroundAsset,
       child: Scaffold(
         backgroundColor: Colors.transparent,
         extendBody: extendBody,
